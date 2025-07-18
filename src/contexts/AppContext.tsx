@@ -54,6 +54,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (!context) {
+    console.error('useAppContext called outside of AppProvider. Component hierarchy:', new Error().stack);
     throw new Error('useAppContext deve ser usado dentro de AppProvider');
   }
   return context;
