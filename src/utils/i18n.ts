@@ -1,3 +1,4 @@
+
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
@@ -100,20 +101,20 @@ const resources = {
       // Connection
       "connection.title": "Conexión Serie",
       "connection.port": "Puerto COM",
-      "connection.baudrate": "Baud Rate",
+      "connection.baudrate": "Velocidad en Baudios",
       "connection.selectPort": "Seleccionar puerto",
       "connection.refresh": "Actualizar puertos",
       "connection.connect": "Conectar",
       "connection.disconnect": "Desconectar",
       "connection.connecting": "Conectando...",
-      "connection.connected": "Conectado exitosamente",
+      "connection.connected": "Conectado con éxito",
       "connection.disconnected": "Desconectado",
       "connection.error": "Error de conexión",
       
       // Measurement
       "measurement.start": "Iniciar Medición",
       "measurement.stop": "Detener Medición",
-      "measurement.status": "Estado de Medición",
+      "measurement.status": "Estado de la Medición",
       "measurement.running": "En ejecución",
       "measurement.stopped": "Detenido",
       "measurement.initializing": "Inicializando equipo...",
@@ -127,8 +128,8 @@ const resources = {
       "waves.tp": "Tp (s)",
       "waves.pressure": "Presión (hPa)",
       "waves.temperature": "Temperatura (°C)",
-      "waves.pitch": "Pitch (°)",
-      "waves.roll": "Roll (°)",
+      "waves.pitch": "Cabeceo (°)",
+      "waves.roll": "Balanceo (°)",
       "waves.datetime": "Fecha/Hora",
       "waves.lastValues": "Últimos Valores",
       
@@ -151,21 +152,21 @@ const resources = {
       
       // Export
       "export.title": "Exportar Datos",
-      "export.dateRange": "Rango de Fecha",
-      "export.startDate": "Fecha Inicio",
-      "export.endDate": "Fecha Fin",
-      "export.waveHeightFilter": "Filtro Altura de Ola",
+      "export.dateRange": "Rango de Fechas",
+      "export.startDate": "Fecha de Inicio",
+      "export.endDate": "Fecha de Fin",
+      "export.waveHeightFilter": "Filtro de Altura de Ola",
       "export.minHeight": "Altura Mínima (m)",
       "export.maxHeight": "Altura Máxima (m)",
-      "export.export": "Exportar Excel",
-      "export.success": "¡Datos exportados exitosamente!",
+      "export.export": "Exportar a Excel",
+      "export.success": "¡Datos exportados con éxito!",
       
       // License
-      "license.title": "Gestión de Licencias",
+      "license.title": "Administración de Licencias",
       "license.serialNumber": "Número de Serie",
       "license.authorized": "Equipos Autorizados",
       "license.add": "Agregar",
-      "license.remove": "Remover",
+      "license.remove": "Eliminar",
       "license.unauthorized": "Equipo no autorizado",
       "license.authorized.message": "Equipo autorizado",
       
@@ -177,7 +178,7 @@ const resources = {
       "success": "Éxito",
       "loading": "Cargando...",
       "noData": "Sin datos",
-      "settings": "Configuraciones"
+      "settings": "Configuración"
     }
   }
 };

@@ -1,4 +1,5 @@
 
+
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,35 +12,41 @@ export const CurrentDataDisplay: React.FC = () => {
 
   // Preparar dados para visualização Hovmöller
   const hovmollerData = useMemo(() => {
-    if (!currentData.length) return { velocity: [], direction: [], depths: [], latestData: [] };
+    if (!currentData.length) return { times: [], depths: [], timeGroups: new Map(), latestData: [] };
 
-    // Agrupar dados por tempo e profundidade
-    const timeGroups = new Map();
+    // Agrupar dados por timestamp exato
+    const timeGroups = new Map<number, Map<number, any>>();
     
     currentData.forEach(data => {
-      const timeKey = Math.floor(data.timestamp.getTime() / 10000) * 10000; // Grupos de 10s
+      const timeKey = data.timestamp.getTime();
       if (!timeGroups.has(timeKey)) {
         timeGroups.set(timeKey, new Map());
       }
-      timeGroups.get(timeKey).set(data.depth, data);
+      timeGroups.get(timeKey)!.set(data.depth, data);
     });
 
-    const times = Array.from(timeGroups.keys()).sort().slice(-20); // Últimos 20 grupos
-    const depths = Array.from(new Set(currentData.map(d => d.depth))).sort().slice(0, 15); // Primeiras 15 profundidades
+    // Pegar os últimos 20 timestamps únicos
+    const times = Array.from(timeGroups.keys()).sort().slice(-20);
+    const depths = Array.from(new Set(currentData.map(d => d.depth))).sort().slice(0, 15);
 
     // Obter dados mais recentes para tabela
     const latestTime = times[times.length - 1];
-    const latestData = latestTime ? Array.from(timeGroups.get(latestTime).values()) : [];
+    const latestData = latestTime ? Array.from(timeGroups.get(latestTime)?.values() || []) : [];
 
-    console.log('Hovmöller data prepared:', { times: times.length, depths: depths.length, latest: latestData.length });
+    console.log('Hovmöller data prepared:', { 
+      times: times.length, 
+      depths: depths.length, 
+      latest: latestData.length,
+      totalProfiles: timeGroups.size
+    });
 
     return { times, depths, timeGroups, latestData };
   }, [currentData]);
 
   const getColorForValue = (value: number, type: 'velocity' | 'direction') => {
     if (type === 'velocity') {
-      // Escala de cores para velocidade (0-1 m/s)
-      const intensity = Math.min(value / 0.5, 1); // Normalizar para 0.5 m/s máximo
+      // Escala de cores para velocidade (0-0.5 m/s)
+      const intensity = Math.min(value / 0.5, 1);
       const red = Math.floor(intensity * 255);
       const blue = Math.floor((1 - intensity) * 255);
       return `rgb(${red}, 0, ${blue})`;
@@ -59,15 +66,15 @@ export const CurrentDataDisplay: React.FC = () => {
             <CardTitle>{t('currents.velocity')} - Hovmöller</CardTitle>
           </CardHeader>
           <CardContent>
-            {hovmollerData.times && hovmollerData.times.length > 0 ? (
+            {hovmollerData.times.length > 0 ? (
               <div className="space-y-2">
                 <div className="text-xs text-muted-foreground mb-2">
-                  {t('currents.intensity')} (0-0.5 m/s) - Últimos {hovmollerData.times.length} intervalos
+                  {t('currents.intensity')} (0-0.5 m/s) - {hovmollerData.times.length} perfis temporais
                 </div>
                 <div className="relative overflow-auto">
                   {/* Eixo Y - Profundidade */}
                   <div className="absolute left-0 top-0 h-full w-16 flex flex-col justify-between text-xs z-10 bg-background">
-                    {hovmollerData.depths?.slice(0, 10).map((depth, idx) => (
+                    {hovmollerData.depths.slice(0, 10).map((depth, idx) => (
                       <div key={depth} className="text-right pr-2 h-4 flex items-center">
                         {depth.toFixed(1)}m
                       </div>
@@ -76,14 +83,14 @@ export const CurrentDataDisplay: React.FC = () => {
                   
                   {/* Grid de dados */}
                   <div className="ml-16 space-y-1">
-                    {hovmollerData.depths?.slice(0, 10).map(depth => (
+                    {hovmollerData.depths.slice(0, 10).map(depth => (
                       <div key={depth} className="flex space-x-1">
-                        {hovmollerData.times?.map((time, idx) => {
-                          const data = hovmollerData.timeGroups?.get(time)?.get(depth);
+                        {hovmollerData.times.map((time, idx) => {
+                          const data = hovmollerData.timeGroups.get(time)?.get(depth);
                           const value = data?.velocity || 0;
                           return (
                             <div
-                              key={idx}
+                              key={`${time}-${depth}`}
                               className="w-6 h-4 border border-gray-200 cursor-pointer"
                               style={{ backgroundColor: getColorForValue(value, 'velocity') }}
                               title={`${new Date(time).toLocaleTimeString()} - ${depth}m: ${value.toFixed(3)} m/s`}
@@ -124,15 +131,15 @@ export const CurrentDataDisplay: React.FC = () => {
             <CardTitle>{t('currents.direction')} - Hovmöller</CardTitle>
           </CardHeader>
           <CardContent>
-            {hovmollerData.times && hovmollerData.times.length > 0 ? (
+            {hovmollerData.times.length > 0 ? (
               <div className="space-y-2">
                 <div className="text-xs text-muted-foreground mb-2">
-                  {t('currents.angle')} (0-360°) - Últimos {hovmollerData.times.length} intervalos
+                  {t('currents.angle')} (0-360°) - {hovmollerData.times.length} perfis temporais
                 </div>
                 <div className="relative overflow-auto">
                   {/* Eixo Y - Profundidade */}
                   <div className="absolute left-0 top-0 h-full w-16 flex flex-col justify-between text-xs z-10 bg-background">
-                    {hovmollerData.depths?.slice(0, 10).map((depth, idx) => (
+                    {hovmollerData.depths.slice(0, 10).map((depth, idx) => (
                       <div key={depth} className="text-right pr-2 h-4 flex items-center">
                         {depth.toFixed(1)}m
                       </div>
@@ -141,14 +148,14 @@ export const CurrentDataDisplay: React.FC = () => {
                   
                   {/* Grid de dados */}
                   <div className="ml-16 space-y-1">
-                    {hovmollerData.depths?.slice(0, 10).map(depth => (
+                    {hovmollerData.depths.slice(0, 10).map(depth => (
                       <div key={depth} className="flex space-x-1">
-                        {hovmollerData.times?.map((time, idx) => {
-                          const data = hovmollerData.timeGroups?.get(time)?.get(depth);
+                        {hovmollerData.times.map((time, idx) => {
+                          const data = hovmollerData.timeGroups.get(time)?.get(depth);
                           const value = data?.direction || 0;
                           return (
                             <div
-                              key={idx}
+                              key={`${time}-${depth}`}
                               className="w-6 h-4 border border-gray-200 cursor-pointer"
                               style={{ backgroundColor: getColorForValue(value, 'direction') }}
                               title={`${new Date(time).toLocaleTimeString()} - ${depth}m: ${value.toFixed(1)}°`}
@@ -188,7 +195,14 @@ export const CurrentDataDisplay: React.FC = () => {
       {hovmollerData.latestData.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Dados Mais Recentes - Perfil de Corrente</CardTitle>
+            <CardTitle>
+              {hovmollerData.times.length > 0 && (
+                <span className="text-sm text-muted-foreground">
+                  {new Date(hovmollerData.times[hovmollerData.times.length - 1]).toLocaleString()} - 
+                </span>
+              )}
+              {" "}Dados Mais Recentes - Perfil de Corrente
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="max-h-96 overflow-auto">
@@ -199,7 +213,6 @@ export const CurrentDataDisplay: React.FC = () => {
                     <TableHead>Profundidade (m)</TableHead>
                     <TableHead>Velocidade (m/s)</TableHead>
                     <TableHead>Direção (°)</TableHead>
-                    <TableHead>Horário</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -207,12 +220,11 @@ export const CurrentDataDisplay: React.FC = () => {
                     .sort((a, b) => a.depth - b.depth)
                     .slice(0, 15)
                     .map((data, idx) => (
-                    <TableRow key={idx}>
+                    <TableRow key={`${data.cellNumber}-${data.timestamp.getTime()}`}>
                       <TableCell className="font-mono">{data.cellNumber}</TableCell>
                       <TableCell className="font-mono">{data.depth.toFixed(1)}</TableCell>
                       <TableCell className="font-mono text-blue-600">{data.velocity.toFixed(3)}</TableCell>
                       <TableCell className="font-mono text-green-600">{data.direction.toFixed(1)}</TableCell>
-                      <TableCell className="font-mono text-sm">{data.timestamp.toLocaleTimeString()}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -224,3 +236,4 @@ export const CurrentDataDisplay: React.FC = () => {
     </div>
   );
 };
+

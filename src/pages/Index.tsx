@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,6 +11,7 @@ import { AlertsPanel } from '@/components/AlertsPanel';
 import { ExportPanel } from '@/components/ExportPanel';
 import { LicensePanel } from '@/components/LicensePanel';
 import { LanguageSelector } from '@/components/LanguageSelector';
+import { GlobalAlerts } from '@/components/GlobalAlerts';
 import '@/utils/i18n';
 
 const Index = () => {
@@ -25,6 +27,9 @@ const Index = () => {
             <LanguageSelector />
           </div>
         </header>
+
+        {/* Global Alerts */}
+        <GlobalAlerts />
 
         {/* Main Content */}
         <main className="container mx-auto px-4 py-6">

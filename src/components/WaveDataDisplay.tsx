@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -64,15 +65,17 @@ export const WaveDataDisplay: React.FC = () => {
                     type="monotone" 
                     dataKey="hm0" 
                     stroke="var(--color-hm0)" 
-                    strokeWidth={2}
-                    dot={false}
+                    strokeWidth={3}
+                    dot={{ r: 3, fill: "var(--color-hm0)" }}
+                    activeDot={{ r: 5, stroke: "var(--color-hm0)", strokeWidth: 2 }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="hmax" 
                     stroke="var(--color-hmax)" 
-                    strokeWidth={2}
-                    dot={false}
+                    strokeWidth={3}
+                    dot={{ r: 3, fill: "var(--color-hmax)" }}
+                    activeDot={{ r: 5, stroke: "var(--color-hmax)", strokeWidth: 2 }}
                   />
                 </LineChart>
               </ChartContainer>
@@ -109,8 +112,9 @@ export const WaveDataDisplay: React.FC = () => {
                     type="monotone" 
                     dataKey="mdir" 
                     stroke="var(--color-mdir)" 
-                    strokeWidth={2}
-                    dot={false}
+                    strokeWidth={3}
+                    dot={{ r: 3, fill: "var(--color-mdir)" }}
+                    activeDot={{ r: 5, stroke: "var(--color-mdir)", strokeWidth: 2 }}
                   />
                 </LineChart>
               </ChartContainer>
@@ -144,8 +148,9 @@ export const WaveDataDisplay: React.FC = () => {
                     type="monotone" 
                     dataKey="tm02" 
                     stroke="var(--color-tm02)" 
-                    strokeWidth={2}
-                    dot={false}
+                    strokeWidth={3}
+                    dot={{ r: 3, fill: "var(--color-tm02)" }}
+                    activeDot={{ r: 5, stroke: "var(--color-tm02)", strokeWidth: 2 }}
                   />
                 </LineChart>
               </ChartContainer>
@@ -219,3 +224,4 @@ export const WaveDataDisplay: React.FC = () => {
     </div>
   );
 };
+

@@ -1,4 +1,5 @@
 
+
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { WaveData, CurrentData, AlertConfig, MeasurementState, ADCPConfig } from '@/types/adcp';
 
@@ -107,6 +108,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Data simulation intervals
   const intervalsRef = useRef<{ wave?: NodeJS.Timeout, current?: NodeJS.Timeout }>({});
+  
+  // Current data time tracking
+  const currentDataTimeRef = useRef<number>(Date.now());
 
   const addWaveData = useCallback((data: WaveData) => {
     console.log('Adding wave data:', data);
@@ -167,34 +171,75 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       // Implementação da exportação para Excel
       const XLSX = await import('xlsx');
       
+      // Headers em português e espanhol
+      const headers = {
+        pt: {
+          datetime: 'Data/Hora',
+          hm0: 'Hm0 (m)',
+          hmax: 'Hmax (m)',
+          mdir: 'Mdir (°)',
+          tm02: 'Tm02 (s)',
+          tp: 'Tp (s)',
+          pressure: 'Pressão (hPa)',
+          temperature: 'Temperatura (°C)',
+          pitch: 'Pitch (°)',
+          roll: 'Roll (°)',
+          cell: 'Célula',
+          depth: 'Profundidade (m)',
+          velocity: 'Velocidade (m/s)',
+          direction: 'Direção (°)'
+        },
+        es: {
+          datetime: 'Fecha/Hora',
+          hm0: 'Hm0 (m)',
+          hmax: 'Hmax (m)',
+          mdir: 'Mdir (°)',
+          tm02: 'Tm02 (s)',
+          tp: 'Tp (s)',
+          pressure: 'Presión (hPa)',
+          temperature: 'Temperatura (°C)',
+          pitch: 'Cabeceo (°)',
+          roll: 'Balanceo (°)',
+          cell: 'Celda',
+          depth: 'Profundidad (m)',
+          velocity: 'Velocidad (m/s)',
+          direction: 'Dirección (°)'
+        }
+      };
+      
+      // Detectar idioma atual
+      const currentLanguage = document.documentElement.lang || 'pt';
+      const lang = currentLanguage.startsWith('es') ? 'es' : 'pt';
+      const h = headers[lang];
+      
       const waveWorksheet = XLSX.utils.json_to_sheet(
         dataBufferRef.current.waves.map(w => ({
-          'Data/Hora': w.timestamp.toISOString(),
-          'Hm0 (m)': w.hm0,
-          'Hmax (m)': w.hmax,
-          'Mdir (°)': w.mdir,
-          'Tm02 (s)': w.tm02,
-          'Tp (s)': w.tp,
-          'Pressão (hPa)': w.pressure,
-          'Temperatura (°C)': w.temperature,
-          'Pitch (°)': w.pitch,
-          'Roll (°)': w.roll
+          [h.datetime]: w.timestamp.toLocaleString(lang === 'es' ? 'es-ES' : 'pt-BR'),
+          [h.hm0]: w.hm0,
+          [h.hmax]: w.hmax,
+          [h.mdir]: w.mdir,
+          [h.tm02]: w.tm02,
+          [h.tp]: w.tp,
+          [h.pressure]: w.pressure,
+          [h.temperature]: w.temperature,
+          [h.pitch]: w.pitch,
+          [h.roll]: w.roll
         }))
       );
       
       const currentWorksheet = XLSX.utils.json_to_sheet(
         dataBufferRef.current.currents.map(c => ({
-          'Data/Hora': c.timestamp.toISOString(),
-          'Célula': c.cellNumber,
-          'Profundidade (m)': c.depth,
-          'Velocidade (m/s)': c.velocity,
-          'Direção (°)': c.direction
+          [h.datetime]: c.timestamp.toLocaleString(lang === 'es' ? 'es-ES' : 'pt-BR'),
+          [h.cell]: c.cellNumber,
+          [h.depth]: c.depth,
+          [h.velocity]: c.velocity,
+          [h.direction]: c.direction
         }))
       );
       
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, waveWorksheet, 'Ondas');
-      XLSX.utils.book_append_sheet(workbook, currentWorksheet, 'Correntes');
+      XLSX.utils.book_append_sheet(workbook, waveWorksheet, lang === 'es' ? 'Olas' : 'Ondas');
+      XLSX.utils.book_append_sheet(workbook, currentWorksheet, lang === 'es' ? 'Corrientes' : 'Correntes');
       
       const fileName = `ADCP_Data_${new Date().toISOString().split('T')[0]}.xlsx`;
       XLSX.writeFile(workbook, fileName);
@@ -290,6 +335,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (intervalsRef.current.wave) clearInterval(intervalsRef.current.wave);
     if (intervalsRef.current.current) clearInterval(intervalsRef.current.current);
     
+    // Reset current data time reference
+    currentDataTimeRef.current = Date.now();
+    
     // Simulate wave data every 1 second
     intervalsRef.current.wave = setInterval(() => {
       if (!measurementState.isRunning) {
@@ -313,20 +361,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       addWaveData(waveData);
     }, 1000);
 
-    // Simulate current data
+    // Simulate current data - create new profile every second
     intervalsRef.current.current = setInterval(() => {
       if (!measurementState.isRunning) {
         if (intervalsRef.current.current) clearInterval(intervalsRef.current.current);
         return;
       }
 
+      // Create a new complete profile with the same timestamp for all cells
+      const profileTimestamp = new Date();
+      
       for (let cell = 1; cell <= 30; cell++) {
         const currentData = {
           cellNumber: cell,
           depth: cell * 0.3, // 30cm cell size
           velocity: Math.random() * 0.5,
           direction: Math.random() * 360,
-          timestamp: new Date()
+          timestamp: profileTimestamp // Same timestamp for all cells in this profile
         };
 
         addCurrentData(currentData);
@@ -382,3 +433,4 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     </AppContext.Provider>
   );
 };
+
