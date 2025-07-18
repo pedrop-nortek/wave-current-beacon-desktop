@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -5,19 +6,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Play, Square, Loader2 } from 'lucide-react';
 import { useAppContext } from '@/contexts/AppContext';
-import { useSerialConnection } from '@/hooks/useSerialConnection';
 import { INITIALIZATION_COMMANDS } from '@/types/adcp';
 
 export const MeasurementControl: React.FC = () => {
   const { t } = useTranslation();
-  const { measurementState, updateMeasurementState } = useAppContext();
-  const { status: connectionStatus, sendCommand } = useSerialConnection();
+  const { 
+    measurementState, 
+    updateMeasurementState, 
+    connectionStatus, 
+    sendCommand 
+  } = useAppContext();
 
   const startMeasurement = async () => {
     if (!connectionStatus.isConnected) {
+      console.error('Cannot start measurement: not connected');
       return;
     }
 
+    console.log('Starting measurement sequence...');
     updateMeasurementState({ 
       isInitializing: true, 
       error: null 
@@ -46,6 +52,7 @@ export const MeasurementControl: React.FC = () => {
         }
       }
 
+      console.log('Initialization complete, starting measurement...');
       updateMeasurementState({
         isInitializing: false,
         isRunning: true,
@@ -53,10 +60,8 @@ export const MeasurementControl: React.FC = () => {
         error: null
       });
 
-      // Iniciar simulação de recepção de dados
-      startDataSimulation();
-
     } catch (error) {
+      console.error('Error during initialization:', error);
       updateMeasurementState({
         isInitializing: false,
         isRunning: false,
@@ -66,6 +71,7 @@ export const MeasurementControl: React.FC = () => {
   };
 
   const stopMeasurement = () => {
+    console.log('Stopping measurement...');
     updateMeasurementState({
       isRunning: false,
       isInitializing: false,
@@ -74,56 +80,16 @@ export const MeasurementControl: React.FC = () => {
     });
   };
 
-  // Simulação de dados para demonstração
-  const startDataSimulation = () => {
-    const { addWaveData, addCurrentData } = useAppContext();
-    
-    // Simular dados de onda a cada 1 segundo
-    const waveInterval = setInterval(() => {
-      if (!measurementState.isRunning) {
-        clearInterval(waveInterval);
-        return;
-      }
-
-      const waveData = {
-        hm0: 1.5 + Math.random() * 2,
-        hmax: 2.5 + Math.random() * 3,
-        mdir: Math.random() * 360,
-        tm02: 6 + Math.random() * 4,
-        tp: 8 + Math.random() * 6,
-        pressure: 1013 + Math.random() * 20,
-        temperature: 18 + Math.random() * 8,
-        pitch: -2 + Math.random() * 4,
-        roll: -1 + Math.random() * 2,
-        timestamp: new Date()
-      };
-
-      addWaveData(waveData);
-    }, 1000);
-
-    // Simular dados de corrente
-    const currentInterval = setInterval(() => {
-      if (!measurementState.isRunning) {
-        clearInterval(currentInterval);
-        return;
-      }
-
-      for (let cell = 1; cell <= 30; cell++) {
-        const currentData = {
-          cellNumber: cell,
-          depth: cell * 0.3, // Célula de 30cm
-          velocity: Math.random() * 0.5,
-          direction: Math.random() * 360,
-          timestamp: new Date()
-        };
-
-        addCurrentData(currentData);
-      }
-    }, 1000);
-  };
-
   const canStart = connectionStatus.isConnected && !measurementState.isRunning && !measurementState.isInitializing;
   const canStop = measurementState.isRunning || measurementState.isInitializing;
+
+  console.log('Measurement control state:', {
+    isConnected: connectionStatus.isConnected,
+    isRunning: measurementState.isRunning,
+    isInitializing: measurementState.isInitializing,
+    canStart,
+    canStop
+  });
 
   return (
     <Card className="w-full">
@@ -178,6 +144,12 @@ export const MeasurementControl: React.FC = () => {
         {measurementState.error && (
           <div className="text-sm text-red-500 bg-red-50 p-2 rounded">
             {measurementState.error}
+          </div>
+        )}
+        
+        {!connectionStatus.isConnected && (
+          <div className="text-sm text-orange-600 bg-orange-50 p-2 rounded">
+            Conecte-se ao equipamento para iniciar a medição
           </div>
         )}
       </CardContent>

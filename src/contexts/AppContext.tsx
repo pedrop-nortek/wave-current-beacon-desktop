@@ -1,5 +1,17 @@
+
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { WaveData, CurrentData, AlertConfig, MeasurementState, ADCPConfig } from '@/types/adcp';
+
+export interface SerialConfig {
+  port: string;
+  baudRate: number;
+}
+
+export interface ConnectionStatus {
+  isConnected: boolean;
+  isConnecting: boolean;
+  error: string | null;
+}
 
 interface AppContextType {
   // Data
@@ -13,6 +25,11 @@ interface AppContextType {
   authorizedDevices: string[];
   currentDevice: ADCPConfig | null;
   
+  // Serial Connection
+  serialConfig: SerialConfig;
+  connectionStatus: ConnectionStatus;
+  availablePorts: string[];
+  
   // Actions
   addWaveData: (data: WaveData) => void;
   addCurrentData: (data: CurrentData) => void;
@@ -23,6 +40,13 @@ interface AppContextType {
   setCurrentDevice: (device: ADCPConfig | null) => void;
   clearData: () => void;
   exportData: (filters?: any) => void;
+  
+  // Serial Actions
+  setSerialConfig: (config: Partial<SerialConfig>) => void;
+  listPorts: () => Promise<string[]>;
+  connect: () => Promise<boolean>;
+  disconnect: () => Promise<void>;
+  sendCommand: (command: string) => Promise<boolean>;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -60,12 +84,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   
   const [currentDevice, setCurrentDevice] = useState<ADCPConfig | null>(null);
   
+  // Serial Connection State
+  const [serialConfig, setSerialConfigState] = useState<SerialConfig>({
+    port: '',
+    baudRate: 115200
+  });
+  
+  const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>({
+    isConnected: false,
+    isConnecting: false,
+    error: null
+  });
+
+  const [availablePorts, setAvailablePorts] = useState<string[]>([]);
+  const portRef = useRef<any>(null);
+  
   const dataBufferRef = useRef<{ waves: WaveData[], currents: CurrentData[] }>({
     waves: [],
     currents: []
   });
 
+  // Data simulation intervals
+  const intervalsRef = useRef<{ wave?: NodeJS.Timeout, current?: NodeJS.Timeout }>({});
+
   const addWaveData = useCallback((data: WaveData) => {
+    console.log('Adding wave data:', data);
     setWaveData(prev => {
       const newData = [...prev, data].slice(-1000); // Manter últimos 1000 pontos
       dataBufferRef.current.waves.push(data);
@@ -81,9 +124,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       if (data.tm02 > alertConfig.tm02Limit) alerts.push(`Tm02: ${data.tm02.toFixed(2)}s`);
       
       if (alerts.length > 0) {
-        // Trigger alert notification
         console.warn('ALERTA:', alerts.join(', '));
-        // Em ambiente real, aqui seria disparado um alerta visual/sonoro
       }
     }
   }, [alertConfig]);
@@ -97,6 +138,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const updateMeasurementState = useCallback((state: Partial<MeasurementState>) => {
+    console.log('Updating measurement state:', state);
     setMeasurementState(prev => ({ ...prev, ...state }));
   }, []);
 
@@ -162,6 +204,150 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, []);
 
+  // Serial Connection Functions
+  const setSerialConfig = useCallback((config: Partial<SerialConfig>) => {
+    setSerialConfigState(prev => ({ ...prev, ...config }));
+  }, []);
+
+  const listPorts = useCallback(async () => {
+    try {
+      console.log('Listing available ports...');
+      const mockPorts = ['COM1', 'COM3', 'COM4', 'COM8'];
+      setAvailablePorts(mockPorts);
+      return mockPorts;
+    } catch (error) {
+      console.error('Error listing ports:', error);
+      return [];
+    }
+  }, []);
+
+  const connect = useCallback(async () => {
+    if (!serialConfig.port) {
+      setConnectionStatus(prev => ({ ...prev, error: 'Por favor, selecione uma porta' }));
+      return false;
+    }
+
+    console.log('Attempting to connect to port:', serialConfig.port);
+    setConnectionStatus({ isConnected: false, isConnecting: true, error: null });
+    
+    try {
+      // Simulação da conexão serial
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      console.log('Connection successful!');
+      setConnectionStatus({ isConnected: true, isConnecting: false, error: null });
+      return true;
+    } catch (error) {
+      console.error('Connection failed:', error);
+      setConnectionStatus({ 
+        isConnected: false, 
+        isConnecting: false, 
+        error: `Erro ao conectar: ${error}` 
+      });
+      return false;
+    }
+  }, [serialConfig]);
+
+  const disconnect = useCallback(async () => {
+    try {
+      console.log('Disconnecting...');
+      if (portRef.current) {
+        portRef.current = null;
+      }
+      setConnectionStatus({ isConnected: false, isConnecting: false, error: null });
+      
+      // Stop measurement if running
+      if (measurementState.isRunning) {
+        updateMeasurementState({ isRunning: false, isInitializing: false });
+        if (intervalsRef.current.wave) clearInterval(intervalsRef.current.wave);
+        if (intervalsRef.current.current) clearInterval(intervalsRef.current.current);
+      }
+    } catch (error) {
+      console.error('Error disconnecting:', error);
+    }
+  }, [measurementState.isRunning, updateMeasurementState]);
+
+  const sendCommand = useCallback(async (command: string) => {
+    if (!connectionStatus.isConnected) {
+      throw new Error('Não conectado ao equipamento');
+    }
+    
+    try {
+      console.log(`Sending command: ${command}`);
+      return true;
+    } catch (error) {
+      console.error('Error sending command:', error);
+      throw error;
+    }
+  }, [connectionStatus.isConnected]);
+
+  // Start data simulation when measurement starts
+  const startDataSimulation = useCallback(() => {
+    console.log('Starting data simulation...');
+    
+    // Clear any existing intervals
+    if (intervalsRef.current.wave) clearInterval(intervalsRef.current.wave);
+    if (intervalsRef.current.current) clearInterval(intervalsRef.current.current);
+    
+    // Simulate wave data every 1 second
+    intervalsRef.current.wave = setInterval(() => {
+      if (!measurementState.isRunning) {
+        if (intervalsRef.current.wave) clearInterval(intervalsRef.current.wave);
+        return;
+      }
+
+      const waveData = {
+        hm0: 1.5 + Math.random() * 2,
+        hmax: 2.5 + Math.random() * 3,
+        mdir: Math.random() * 360,
+        tm02: 6 + Math.random() * 4,
+        tp: 8 + Math.random() * 6,
+        pressure: 1013 + Math.random() * 20,
+        temperature: 18 + Math.random() * 8,
+        pitch: -2 + Math.random() * 4,
+        roll: -1 + Math.random() * 2,
+        timestamp: new Date()
+      };
+
+      addWaveData(waveData);
+    }, 1000);
+
+    // Simulate current data
+    intervalsRef.current.current = setInterval(() => {
+      if (!measurementState.isRunning) {
+        if (intervalsRef.current.current) clearInterval(intervalsRef.current.current);
+        return;
+      }
+
+      for (let cell = 1; cell <= 30; cell++) {
+        const currentData = {
+          cellNumber: cell,
+          depth: cell * 0.3, // 30cm cell size
+          velocity: Math.random() * 0.5,
+          direction: Math.random() * 360,
+          timestamp: new Date()
+        };
+
+        addCurrentData(currentData);
+      }
+    }, 1000);
+  }, [measurementState.isRunning, addWaveData, addCurrentData]);
+
+  // Effect to start/stop simulation based on measurement state
+  React.useEffect(() => {
+    if (measurementState.isRunning) {
+      startDataSimulation();
+    } else {
+      if (intervalsRef.current.wave) clearInterval(intervalsRef.current.wave);
+      if (intervalsRef.current.current) clearInterval(intervalsRef.current.current);
+    }
+    
+    return () => {
+      if (intervalsRef.current.wave) clearInterval(intervalsRef.current.wave);
+      if (intervalsRef.current.current) clearInterval(intervalsRef.current.current);
+    };
+  }, [measurementState.isRunning, startDataSimulation]);
+
   const contextValue: AppContextType = {
     waveData,
     currentData,
@@ -170,6 +356,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     alertConfig,
     authorizedDevices,
     currentDevice,
+    serialConfig,
+    connectionStatus,
+    availablePorts,
     addWaveData,
     addCurrentData,
     updateMeasurementState,
@@ -178,7 +367,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     removeAuthorizedDevice,
     setCurrentDevice,
     clearData,
-    exportData
+    exportData,
+    setSerialConfig,
+    listPorts,
+    connect,
+    disconnect,
+    sendCommand
   };
 
   return (

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
@@ -5,28 +6,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { RefreshCw, Wifi, WifiOff } from 'lucide-react';
-import { useSerialConnection } from '@/hooks/useSerialConnection';
+import { useAppContext } from '@/contexts/AppContext';
 
 const BAUD_RATES = [9600, 19200, 38400, 57600, 115200];
 
 export const ConnectionPanel: React.FC = () => {
   const { t } = useTranslation();
   const {
-    config,
-    setConfig,
-    status,
+    serialConfig,
+    setSerialConfig,
+    connectionStatus,
     availablePorts,
     listPorts,
     connect,
     disconnect
-  } = useSerialConnection();
+  } = useAppContext();
 
   React.useEffect(() => {
     listPorts();
   }, [listPorts]);
 
   const handleConnect = () => {
-    if (status.isConnected) {
+    if (connectionStatus.isConnected) {
       disconnect();
     } else {
       connect();
@@ -37,7 +38,7 @@ export const ConnectionPanel: React.FC = () => {
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          {status.isConnected ? (
+          {connectionStatus.isConnected ? (
             <Wifi className="h-5 w-5 text-green-500" />
           ) : (
             <WifiOff className="h-5 w-5 text-red-500" />
@@ -53,9 +54,9 @@ export const ConnectionPanel: React.FC = () => {
             </label>
             <div className="flex gap-2">
               <Select
-                value={config.port}
-                onValueChange={(value) => setConfig(prev => ({ ...prev, port: value }))}
-                disabled={status.isConnected}
+                value={serialConfig.port}
+                onValueChange={(value) => setSerialConfig({ port: value })}
+                disabled={connectionStatus.isConnected}
               >
                 <SelectTrigger>
                   <SelectValue placeholder={t('connection.selectPort')} />
@@ -72,7 +73,7 @@ export const ConnectionPanel: React.FC = () => {
                 variant="outline"
                 size="icon"
                 onClick={listPorts}
-                disabled={status.isConnected}
+                disabled={connectionStatus.isConnected}
               >
                 <RefreshCw className="h-4 w-4" />
               </Button>
@@ -84,9 +85,9 @@ export const ConnectionPanel: React.FC = () => {
               {t('connection.baudrate')}
             </label>
             <Select
-              value={config.baudRate.toString()}
-              onValueChange={(value) => setConfig(prev => ({ ...prev, baudRate: parseInt(value) }))}
-              disabled={status.isConnected}
+              value={serialConfig.baudRate.toString()}
+              onValueChange={(value) => setSerialConfig({ baudRate: parseInt(value) })}
+              disabled={connectionStatus.isConnected}
             >
               <SelectTrigger>
                 <SelectValue />
@@ -104,12 +105,12 @@ export const ConnectionPanel: React.FC = () => {
 
         <div className="flex items-center justify-between">
           <Badge 
-            variant={status.isConnected ? "default" : "secondary"}
-            className={status.isConnected ? "bg-green-500" : ""}
+            variant={connectionStatus.isConnected ? "default" : "secondary"}
+            className={connectionStatus.isConnected ? "bg-green-500" : ""}
           >
-            {status.isConnecting 
+            {connectionStatus.isConnecting 
               ? t('connection.connecting')
-              : status.isConnected 
+              : connectionStatus.isConnected 
                 ? t('connection.connected')
                 : t('connection.disconnected')
             }
@@ -117,21 +118,21 @@ export const ConnectionPanel: React.FC = () => {
 
           <Button
             onClick={handleConnect}
-            disabled={status.isConnecting || !config.port}
-            variant={status.isConnected ? "destructive" : "default"}
+            disabled={connectionStatus.isConnecting || !serialConfig.port}
+            variant={connectionStatus.isConnected ? "destructive" : "default"}
           >
-            {status.isConnecting 
+            {connectionStatus.isConnecting 
               ? t('connection.connecting')
-              : status.isConnected 
+              : connectionStatus.isConnected 
                 ? t('connection.disconnect')
                 : t('connection.connect')
             }
           </Button>
         </div>
 
-        {status.error && (
+        {connectionStatus.error && (
           <div className="text-sm text-red-500 bg-red-50 p-2 rounded">
-            {status.error}
+            {connectionStatus.error}
           </div>
         )}
       </CardContent>

@@ -1,6 +1,8 @@
+
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAppContext } from '@/contexts/AppContext';
 
 export const CurrentDataDisplay: React.FC = () => {
@@ -9,7 +11,7 @@ export const CurrentDataDisplay: React.FC = () => {
 
   // Preparar dados para visualização Hovmöller
   const hovmollerData = useMemo(() => {
-    if (!currentData.length) return { velocity: [], direction: [] };
+    if (!currentData.length) return { velocity: [], direction: [], depths: [], latestData: [] };
 
     // Agrupar dados por tempo e profundidade
     const timeGroups = new Map();
@@ -22,34 +24,22 @@ export const CurrentDataDisplay: React.FC = () => {
       timeGroups.get(timeKey).set(data.depth, data);
     });
 
-    const times = Array.from(timeGroups.keys()).sort().slice(-30); // Últimos 30 grupos
-    const depths = Array.from(new Set(currentData.map(d => d.depth))).sort();
+    const times = Array.from(timeGroups.keys()).sort().slice(-20); // Últimos 20 grupos
+    const depths = Array.from(new Set(currentData.map(d => d.depth))).sort().slice(0, 15); // Primeiras 15 profundidades
 
-    const velocity = times.map(time => {
-      const row = { time: new Date(time).toLocaleTimeString() };
-      depths.forEach(depth => {
-        const data = timeGroups.get(time)?.get(depth);
-        row[`depth_${depth}`] = data?.velocity || 0;
-      });
-      return row;
-    });
+    // Obter dados mais recentes para tabela
+    const latestTime = times[times.length - 1];
+    const latestData = latestTime ? Array.from(timeGroups.get(latestTime).values()) : [];
 
-    const direction = times.map(time => {
-      const row = { time: new Date(time).toLocaleTimeString() };
-      depths.forEach(depth => {
-        const data = timeGroups.get(time)?.get(depth);
-        row[`depth_${depth}`] = data?.direction || 0;
-      });
-      return row;
-    });
+    console.log('Hovmöller data prepared:', { times: times.length, depths: depths.length, latest: latestData.length });
 
-    return { velocity, direction, depths };
+    return { times, depths, timeGroups, latestData };
   }, [currentData]);
 
   const getColorForValue = (value: number, type: 'velocity' | 'direction') => {
     if (type === 'velocity') {
       // Escala de cores para velocidade (0-1 m/s)
-      const intensity = Math.min(value / 1.0, 1);
+      const intensity = Math.min(value / 0.5, 1); // Normalizar para 0.5 m/s máximo
       const red = Math.floor(intensity * 255);
       const blue = Math.floor((1 - intensity) * 255);
       return `rgb(${red}, 0, ${blue})`;
@@ -66,36 +56,37 @@ export const CurrentDataDisplay: React.FC = () => {
         {/* Gráfico Hovmöller - Velocidade */}
         <Card>
           <CardHeader>
-            <CardTitle>{t('currents.velocity')}</CardTitle>
+            <CardTitle>{t('currents.velocity')} - Hovmöller</CardTitle>
           </CardHeader>
           <CardContent>
-            {hovmollerData.velocity.length > 0 ? (
+            {hovmollerData.times && hovmollerData.times.length > 0 ? (
               <div className="space-y-2">
                 <div className="text-xs text-muted-foreground mb-2">
-                  {t('currents.intensity')} (0-1 m/s)
+                  {t('currents.intensity')} (0-0.5 m/s) - Últimos {hovmollerData.times.length} intervalos
                 </div>
-                <div className="relative">
+                <div className="relative overflow-auto">
                   {/* Eixo Y - Profundidade */}
-                  <div className="absolute left-0 top-0 h-full w-12 flex flex-col justify-between text-xs">
-                    {hovmollerData.depths?.map(depth => (
-                      <div key={depth} className="text-right pr-2">
+                  <div className="absolute left-0 top-0 h-full w-16 flex flex-col justify-between text-xs z-10 bg-background">
+                    {hovmollerData.depths?.slice(0, 10).map((depth, idx) => (
+                      <div key={depth} className="text-right pr-2 h-4 flex items-center">
                         {depth.toFixed(1)}m
                       </div>
                     ))}
                   </div>
                   
                   {/* Grid de dados */}
-                  <div className="ml-12 space-y-1">
-                    {hovmollerData.depths?.map(depth => (
+                  <div className="ml-16 space-y-1">
+                    {hovmollerData.depths?.slice(0, 10).map(depth => (
                       <div key={depth} className="flex space-x-1">
-                        {hovmollerData.velocity.map((timeData, idx) => {
-                          const value = timeData[`depth_${depth}`] || 0;
+                        {hovmollerData.times?.map((time, idx) => {
+                          const data = hovmollerData.timeGroups?.get(time)?.get(depth);
+                          const value = data?.velocity || 0;
                           return (
                             <div
                               key={idx}
-                              className="w-4 h-4 border border-gray-200"
+                              className="w-6 h-4 border border-gray-200 cursor-pointer"
                               style={{ backgroundColor: getColorForValue(value, 'velocity') }}
-                              title={`${timeData.time} - ${depth}m: ${value.toFixed(3)} m/s`}
+                              title={`${new Date(time).toLocaleTimeString()} - ${depth}m: ${value.toFixed(3)} m/s`}
                             />
                           );
                         })}
@@ -103,34 +94,25 @@ export const CurrentDataDisplay: React.FC = () => {
                     ))}
                   </div>
                   
-                  {/* Eixo X - Tempo */}
-                  <div className="ml-12 mt-2 flex justify-between text-xs">
-                    {hovmollerData.velocity.slice(0, 5).map((timeData, idx) => (
-                      <div key={idx} className="text-center">
-                        {timeData.time}
-                      </div>
-                    ))}
+                  {/* Escala de cores */}
+                  <div className="ml-16 mt-4 flex items-center gap-2 text-xs">
+                    <span>0</span>
+                    <div className="flex h-4 w-32">
+                      {Array.from({length: 20}, (_, i) => (
+                        <div
+                          key={i}
+                          className="flex-1 h-full"
+                          style={{ backgroundColor: getColorForValue((i/20) * 0.5, 'velocity') }}
+                        />
+                      ))}
+                    </div>
+                    <span>0.5 m/s</span>
                   </div>
-                </div>
-                
-                {/* Escala de cores */}
-                <div className="flex items-center gap-2 text-xs">
-                  <span>0</span>
-                  <div className="flex h-4 w-20">
-                    {Array.from({length: 10}, (_, i) => (
-                      <div
-                        key={i}
-                        className="flex-1 h-full"
-                        style={{ backgroundColor: getColorForValue(i/10, 'velocity') }}
-                      />
-                    ))}
-                  </div>
-                  <span>1 m/s</span>
                 </div>
               </div>
             ) : (
               <div className="text-muted-foreground text-center py-8">
-                {t('noData')}
+                {t('noData')} - Inicie a medição para ver os dados
               </div>
             )}
           </CardContent>
@@ -139,36 +121,37 @@ export const CurrentDataDisplay: React.FC = () => {
         {/* Gráfico Hovmöller - Direção */}
         <Card>
           <CardHeader>
-            <CardTitle>{t('currents.direction')}</CardTitle>
+            <CardTitle>{t('currents.direction')} - Hovmöller</CardTitle>
           </CardHeader>
           <CardContent>
-            {hovmollerData.direction.length > 0 ? (
+            {hovmollerData.times && hovmollerData.times.length > 0 ? (
               <div className="space-y-2">
                 <div className="text-xs text-muted-foreground mb-2">
-                  {t('currents.angle')} (0-360°)
+                  {t('currents.angle')} (0-360°) - Últimos {hovmollerData.times.length} intervalos
                 </div>
-                <div className="relative">
+                <div className="relative overflow-auto">
                   {/* Eixo Y - Profundidade */}
-                  <div className="absolute left-0 top-0 h-full w-12 flex flex-col justify-between text-xs">
-                    {hovmollerData.depths?.map(depth => (
-                      <div key={depth} className="text-right pr-2">
+                  <div className="absolute left-0 top-0 h-full w-16 flex flex-col justify-between text-xs z-10 bg-background">
+                    {hovmollerData.depths?.slice(0, 10).map((depth, idx) => (
+                      <div key={depth} className="text-right pr-2 h-4 flex items-center">
                         {depth.toFixed(1)}m
                       </div>
                     ))}
                   </div>
                   
                   {/* Grid de dados */}
-                  <div className="ml-12 space-y-1">
-                    {hovmollerData.depths?.map(depth => (
+                  <div className="ml-16 space-y-1">
+                    {hovmollerData.depths?.slice(0, 10).map(depth => (
                       <div key={depth} className="flex space-x-1">
-                        {hovmollerData.direction.map((timeData, idx) => {
-                          const value = timeData[`depth_${depth}`] || 0;
+                        {hovmollerData.times?.map((time, idx) => {
+                          const data = hovmollerData.timeGroups?.get(time)?.get(depth);
+                          const value = data?.direction || 0;
                           return (
                             <div
                               key={idx}
-                              className="w-4 h-4 border border-gray-200"
+                              className="w-6 h-4 border border-gray-200 cursor-pointer"
                               style={{ backgroundColor: getColorForValue(value, 'direction') }}
-                              title={`${timeData.time} - ${depth}m: ${value.toFixed(1)}°`}
+                              title={`${new Date(time).toLocaleTimeString()} - ${depth}m: ${value.toFixed(1)}°`}
                             />
                           );
                         })}
@@ -176,39 +159,68 @@ export const CurrentDataDisplay: React.FC = () => {
                     ))}
                   </div>
                   
-                  {/* Eixo X - Tempo */}
-                  <div className="ml-12 mt-2 flex justify-between text-xs">
-                    {hovmollerData.direction.slice(0, 5).map((timeData, idx) => (
-                      <div key={idx} className="text-center">
-                        {timeData.time}
-                      </div>
-                    ))}
+                  {/* Escala de cores circular */}
+                  <div className="ml-16 mt-4 flex items-center gap-2 text-xs">
+                    <span>0°</span>
+                    <div className="flex h-4 w-32">
+                      {Array.from({length: 12}, (_, i) => (
+                        <div
+                          key={i}
+                          className="flex-1 h-full"
+                          style={{ backgroundColor: getColorForValue((i/12) * 360, 'direction') }}
+                        />
+                      ))}
+                    </div>
+                    <span>360°</span>
                   </div>
-                </div>
-                
-                {/* Escala de cores circular */}
-                <div className="flex items-center gap-2 text-xs">
-                  <span>0°</span>
-                  <div className="flex h-4 w-20">
-                    {Array.from({length: 10}, (_, i) => (
-                      <div
-                        key={i}
-                        className="flex-1 h-full"
-                        style={{ backgroundColor: getColorForValue((i/10) * 360, 'direction') }}
-                      />
-                    ))}
-                  </div>
-                  <span>360°</span>
                 </div>
               </div>
             ) : (
               <div className="text-muted-foreground text-center py-8">
-                {t('noData')}
+                {t('noData')} - Inicie a medição para ver os dados
               </div>
             )}
           </CardContent>
         </Card>
       </div>
+
+      {/* Tabela com dados mais recentes */}
+      {hovmollerData.latestData.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Dados Mais Recentes - Perfil de Corrente</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="max-h-96 overflow-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Célula</TableHead>
+                    <TableHead>Profundidade (m)</TableHead>
+                    <TableHead>Velocidade (m/s)</TableHead>
+                    <TableHead>Direção (°)</TableHead>
+                    <TableHead>Horário</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {hovmollerData.latestData
+                    .sort((a, b) => a.depth - b.depth)
+                    .slice(0, 15)
+                    .map((data, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell className="font-mono">{data.cellNumber}</TableCell>
+                      <TableCell className="font-mono">{data.depth.toFixed(1)}</TableCell>
+                      <TableCell className="font-mono text-blue-600">{data.velocity.toFixed(3)}</TableCell>
+                      <TableCell className="font-mono text-green-600">{data.direction.toFixed(1)}</TableCell>
+                      <TableCell className="font-mono text-sm">{data.timestamp.toLocaleTimeString()}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
