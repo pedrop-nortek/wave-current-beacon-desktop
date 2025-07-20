@@ -1,4 +1,3 @@
-
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
@@ -8,6 +7,11 @@ const resources = {
       // Header
       "app.title": "Monitor de Ondas e Correntes",
       "language": "Idioma",
+      
+      // Theme
+      "theme.light": "Claro",
+      "theme.dark": "Escuro", 
+      "theme.system": "Sistema",
       
       // Connection
       "connection.title": "Conexão Serial",
@@ -97,6 +101,11 @@ const resources = {
       // Header
       "app.title": "Monitor de Olas y Corrientes",
       "language": "Idioma",
+      
+      // Theme
+      "theme.light": "Claro",
+      "theme.dark": "Oscuro",
+      "theme.system": "Sistema",
       
       // Connection
       "connection.title": "Conexión Serie",

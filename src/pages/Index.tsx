@@ -11,6 +11,7 @@ import { AlertsPanel } from '@/components/AlertsPanel';
 import { ExportPanel } from '@/components/ExportPanel';
 import { LicensePanel } from '@/components/LicensePanel';
 import { LanguageSelector } from '@/components/LanguageSelector';
+import { ThemeSelector } from '@/components/ThemeSelector';
 import { GlobalAlerts } from '@/components/GlobalAlerts';
 import '@/utils/i18n';
 
@@ -24,7 +25,10 @@ const Index = () => {
         <header className="border-b bg-card">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <h1 className="text-2xl font-bold">{t('app.title')}</h1>
-            <LanguageSelector />
+            <div className="flex items-center gap-4">
+              <ThemeSelector />
+              <LanguageSelector />
+            </div>
           </div>
         </header>
 
