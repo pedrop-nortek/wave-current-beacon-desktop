@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -66,16 +65,16 @@ export const WaveDataDisplay: React.FC = () => {
                     dataKey="hm0" 
                     stroke="var(--color-hm0)" 
                     strokeWidth={3}
-                    dot={{ r: 3, fill: "var(--color-hm0)" }}
-                    activeDot={{ r: 5, stroke: "var(--color-hm0)", strokeWidth: 2 }}
+                    dot={{ r: 4, fill: "var(--color-hm0)", strokeWidth: 2, stroke: "#fff" }}
+                    activeDot={{ r: 6, stroke: "var(--color-hm0)", strokeWidth: 3, fill: "var(--color-hm0)" }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="hmax" 
                     stroke="var(--color-hmax)" 
                     strokeWidth={3}
-                    dot={{ r: 3, fill: "var(--color-hmax)" }}
-                    activeDot={{ r: 5, stroke: "var(--color-hmax)", strokeWidth: 2 }}
+                    dot={{ r: 4, fill: "var(--color-hmax)", strokeWidth: 2, stroke: "#fff" }}
+                    activeDot={{ r: 6, stroke: "var(--color-hmax)", strokeWidth: 3, fill: "var(--color-hmax)" }}
                   />
                 </LineChart>
               </ChartContainer>
@@ -113,8 +112,8 @@ export const WaveDataDisplay: React.FC = () => {
                     dataKey="mdir" 
                     stroke="var(--color-mdir)" 
                     strokeWidth={3}
-                    dot={{ r: 3, fill: "var(--color-mdir)" }}
-                    activeDot={{ r: 5, stroke: "var(--color-mdir)", strokeWidth: 2 }}
+                    dot={{ r: 5, fill: "var(--color-mdir)", strokeWidth: 2, stroke: "#fff" }}
+                    activeDot={{ r: 7, stroke: "var(--color-mdir)", strokeWidth: 3, fill: "var(--color-mdir)" }}
                   />
                 </LineChart>
               </ChartContainer>
@@ -149,8 +148,8 @@ export const WaveDataDisplay: React.FC = () => {
                     dataKey="tm02" 
                     stroke="var(--color-tm02)" 
                     strokeWidth={3}
-                    dot={{ r: 3, fill: "var(--color-tm02)" }}
-                    activeDot={{ r: 5, stroke: "var(--color-tm02)", strokeWidth: 2 }}
+                    dot={{ r: 5, fill: "var(--color-tm02)", strokeWidth: 2, stroke: "#fff" }}
+                    activeDot={{ r: 7, stroke: "var(--color-tm02)", strokeWidth: 3, fill: "var(--color-tm02)" }}
                   />
                 </LineChart>
               </ChartContainer>
@@ -174,19 +173,19 @@ export const WaveDataDisplay: React.FC = () => {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="font-medium">{t('waves.hm0')}:</span>
-                  <span className="ml-2 text-blue-600 font-mono">{lastWaveData.hm0.toFixed(2)} m</span>
+                  <span className="ml-2 font-mono" style={{ color: "hsl(var(--chart-1))" }}>{lastWaveData.hm0.toFixed(2)} m</span>
                 </div>
                 <div>
                   <span className="font-medium">{t('waves.hmax')}:</span>
-                  <span className="ml-2 text-red-600 font-mono">{lastWaveData.hmax.toFixed(2)} m</span>
+                  <span className="ml-2 font-mono" style={{ color: "hsl(var(--chart-2))" }}>{lastWaveData.hmax.toFixed(2)} m</span>
                 </div>
                 <div>
                   <span className="font-medium">{t('waves.mdir')}:</span>
-                  <span className="ml-2 text-green-600 font-mono">{lastWaveData.mdir.toFixed(1)}°</span>
+                  <span className="ml-2 font-mono" style={{ color: "hsl(var(--chart-3))" }}>{lastWaveData.mdir.toFixed(1)}°</span>
                 </div>
                 <div>
                   <span className="font-medium">{t('waves.tm02')}:</span>
-                  <span className="ml-2 text-purple-600 font-mono">{lastWaveData.tm02.toFixed(2)} s</span>
+                  <span className="ml-2 font-mono" style={{ color: "hsl(var(--chart-4))" }}>{lastWaveData.tm02.toFixed(2)} s</span>
                 </div>
                 <div>
                   <span className="font-medium">{t('waves.tp')}:</span>
@@ -224,4 +223,3 @@ export const WaveDataDisplay: React.FC = () => {
     </div>
   );
 };
-

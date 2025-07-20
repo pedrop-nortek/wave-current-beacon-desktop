@@ -1,5 +1,3 @@
-
-
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { WaveData, CurrentData, AlertConfig, MeasurementState, ADCPConfig } from '@/types/adcp';
 
@@ -168,6 +166,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const exportData = useCallback(async (filters?: any) => {
     try {
+      console.log('Starting data export...');
       // Implementação da exportação para Excel
       const XLSX = await import('xlsx');
       
@@ -207,10 +206,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         }
       };
       
-      // Detectar idioma atual
-      const currentLanguage = document.documentElement.lang || 'pt';
+      // Detectar idioma atual corretamente
+      const currentLanguage = localStorage.getItem('i18nextLng') || document.documentElement.lang || 'pt';
       const lang = currentLanguage.startsWith('es') ? 'es' : 'pt';
       const h = headers[lang];
+      
+      console.log('Language detected:', lang, 'from:', currentLanguage);
       
       const waveWorksheet = XLSX.utils.json_to_sheet(
         dataBufferRef.current.waves.map(w => ({
@@ -244,9 +245,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const fileName = `ADCP_Data_${new Date().toISOString().split('T')[0]}.xlsx`;
       XLSX.writeFile(workbook, fileName);
       
-      console.log('Dados exportados com sucesso!');
+      console.log('Data exported successfully!');
     } catch (error) {
-      console.error('Erro ao exportar dados:', error);
+      console.error('Error exporting data:', error);
     }
   }, []);
 
@@ -361,17 +362,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       addWaveData(waveData);
     }, 1000);
 
-    // Simulate current data - create new profile every second
+    // Simulate current data - create new profile every second (15 cells as per NMEA PNORI standard)
     intervalsRef.current.current = setInterval(() => {
       if (!measurementState.isRunning) {
         if (intervalsRef.current.current) clearInterval(intervalsRef.current.current);
         return;
       }
 
-      // Create a new complete profile with the same timestamp for all cells
+      // Create a new complete profile with the same timestamp for all cells (15 cells)
       const profileTimestamp = new Date();
       
-      for (let cell = 1; cell <= 30; cell++) {
+      for (let cell = 1; cell <= 15; cell++) { // Padronizado para 15 células
         const currentData = {
           cellNumber: cell,
           depth: cell * 0.3, // 30cm cell size
@@ -433,4 +434,3 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     </AppContext.Provider>
   );
 };
-

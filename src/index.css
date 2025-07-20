@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -39,20 +40,19 @@ All colors MUST be HSL.
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Chart colors - Ocean/Marine themed palette following color theory */
+    --chart-1: 200 85% 45%; /* Ocean Blue for Hm0 */
+    --chart-2: 15 78% 60%; /* Coral Red for Hmax */  
+    --chart-3: 175 70% 50%; /* Turquoise Green for Mdir */
+    --chart-4: 260 65% 55%; /* Violet Purple for Tm02 */
   }
 
   .dark {
@@ -91,6 +91,12 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Chart colors for dark mode - adjusted for better contrast */
+    --chart-1: 200 75% 55%; /* Lighter Ocean Blue for Hm0 */
+    --chart-2: 15 85% 65%; /* Brighter Coral Red for Hmax */
+    --chart-3: 175 60% 60%; /* Brighter Turquoise Green for Mdir */
+    --chart-4: 260 70% 65%; /* Brighter Violet Purple for Tm02 */
   }
 }
 

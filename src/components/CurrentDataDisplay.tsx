@@ -1,5 +1,4 @@
 
-
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,6 +26,7 @@ export const CurrentDataDisplay: React.FC = () => {
 
     // Pegar os últimos 20 timestamps únicos
     const times = Array.from(timeGroups.keys()).sort().slice(-20);
+    // Padronizar para 15 células (conforme será definido pelo NMEA PNORI no futuro)
     const depths = Array.from(new Set(currentData.map(d => d.depth))).sort().slice(0, 15);
 
     // Obter dados mais recentes para tabela
@@ -43,17 +43,54 @@ export const CurrentDataDisplay: React.FC = () => {
     return { times, depths, timeGroups, latestData };
   }, [currentData]);
 
+  // Viridis color scale implementation
+  const getViridisColor = (value: number) => {
+    // Normalize value to 0-1 range for direction (0-360°)
+    const t = Math.max(0, Math.min(1, value / 360));
+    
+    // Viridis color scale - RGB values
+    const viridisColors = [
+      [68, 1, 84],    // Dark purple
+      [72, 40, 120],  // Purple
+      [62, 74, 137],  // Blue-purple
+      [49, 104, 142], // Blue
+      [38, 130, 142], // Teal
+      [31, 158, 137], // Green-teal
+      [53, 183, 121], // Green
+      [109, 205, 89], // Light green
+      [180, 222, 44], // Yellow-green
+      [253, 231, 37]  // Yellow
+    ];
+    
+    const index = Math.floor(t * (viridisColors.length - 1));
+    const fraction = (t * (viridisColors.length - 1)) - index;
+    
+    if (index >= viridisColors.length - 1) {
+      const [r, g, b] = viridisColors[viridisColors.length - 1];
+      return `rgb(${r}, ${g}, ${b})`;
+    }
+    
+    const [r1, g1, b1] = viridisColors[index];
+    const [r2, g2, b2] = viridisColors[index + 1];
+    
+    const r = Math.round(r1 + (r2 - r1) * fraction);
+    const g = Math.round(g1 + (g2 - g1) * fraction);
+    const b = Math.round(b1 + (b2 - b1) * fraction);
+    
+    return `rgb(${r}, ${g}, ${b})`;
+  };
+
   const getColorForValue = (value: number, type: 'velocity' | 'direction') => {
     if (type === 'velocity') {
-      // Escala de cores para velocidade (0-0.5 m/s)
+      // White to red scale for velocity (0-0.5 m/s)
       const intensity = Math.min(value / 0.5, 1);
-      const red = Math.floor(intensity * 255);
-      const blue = Math.floor((1 - intensity) * 255);
-      return `rgb(${red}, 0, ${blue})`;
+      const red = 255;
+      const green = Math.floor(255 * (1 - intensity));
+      const blue = Math.floor(255 * (1 - intensity));
+      return `rgb(${red}, ${green}, ${blue})`;
     } else {
-      // Escala de cores para direção (0-360°)
-      const hue = (value / 360) * 360;
-      return `hsl(${hue}, 70%, 50%)`;
+      // Use Viridis scale for direction
+      return getViridisColor(value);
     }
   };
 
@@ -74,7 +111,7 @@ export const CurrentDataDisplay: React.FC = () => {
                 <div className="relative overflow-auto">
                   {/* Eixo Y - Profundidade */}
                   <div className="absolute left-0 top-0 h-full w-16 flex flex-col justify-between text-xs z-10 bg-background">
-                    {hovmollerData.depths.slice(0, 10).map((depth, idx) => (
+                    {hovmollerData.depths.map((depth, idx) => (
                       <div key={depth} className="text-right pr-2 h-4 flex items-center">
                         {depth.toFixed(1)}m
                       </div>
@@ -83,7 +120,7 @@ export const CurrentDataDisplay: React.FC = () => {
                   
                   {/* Grid de dados */}
                   <div className="ml-16 space-y-1">
-                    {hovmollerData.depths.slice(0, 10).map(depth => (
+                    {hovmollerData.depths.map(depth => (
                       <div key={depth} className="flex space-x-1">
                         {hovmollerData.times.map((time, idx) => {
                           const data = hovmollerData.timeGroups.get(time)?.get(depth);
@@ -134,12 +171,12 @@ export const CurrentDataDisplay: React.FC = () => {
             {hovmollerData.times.length > 0 ? (
               <div className="space-y-2">
                 <div className="text-xs text-muted-foreground mb-2">
-                  {t('currents.angle')} (0-360°) - {hovmollerData.times.length} perfis temporais
+                  {t('currents.angle')} (0-360°) - Escala Viridis - {hovmollerData.times.length} perfis temporais
                 </div>
                 <div className="relative overflow-auto">
                   {/* Eixo Y - Profundidade */}
                   <div className="absolute left-0 top-0 h-full w-16 flex flex-col justify-between text-xs z-10 bg-background">
-                    {hovmollerData.depths.slice(0, 10).map((depth, idx) => (
+                    {hovmollerData.depths.map((depth, idx) => (
                       <div key={depth} className="text-right pr-2 h-4 flex items-center">
                         {depth.toFixed(1)}m
                       </div>
@@ -148,7 +185,7 @@ export const CurrentDataDisplay: React.FC = () => {
                   
                   {/* Grid de dados */}
                   <div className="ml-16 space-y-1">
-                    {hovmollerData.depths.slice(0, 10).map(depth => (
+                    {hovmollerData.depths.map(depth => (
                       <div key={depth} className="flex space-x-1">
                         {hovmollerData.times.map((time, idx) => {
                           const data = hovmollerData.timeGroups.get(time)?.get(depth);
@@ -166,15 +203,15 @@ export const CurrentDataDisplay: React.FC = () => {
                     ))}
                   </div>
                   
-                  {/* Escala de cores circular */}
+                  {/* Escala de cores Viridis */}
                   <div className="ml-16 mt-4 flex items-center gap-2 text-xs">
                     <span>0°</span>
                     <div className="flex h-4 w-32">
-                      {Array.from({length: 12}, (_, i) => (
+                      {Array.from({length: 20}, (_, i) => (
                         <div
                           key={i}
                           className="flex-1 h-full"
-                          style={{ backgroundColor: getColorForValue((i/12) * 360, 'direction') }}
+                          style={{ backgroundColor: getViridisColor((i/20) * 360) }}
                         />
                       ))}
                     </div>
@@ -218,7 +255,7 @@ export const CurrentDataDisplay: React.FC = () => {
                 <TableBody>
                   {hovmollerData.latestData
                     .sort((a, b) => a.depth - b.depth)
-                    .slice(0, 15)
+                    .slice(0, 15) // Padronizar para 15 células
                     .map((data, idx) => (
                     <TableRow key={`${data.cellNumber}-${data.timestamp.getTime()}`}>
                       <TableCell className="font-mono">{data.cellNumber}</TableCell>
@@ -236,4 +273,3 @@ export const CurrentDataDisplay: React.FC = () => {
     </div>
   );
 };
-
