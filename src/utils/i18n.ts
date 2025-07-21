@@ -97,17 +97,6 @@ i18n
             exportButton: 'Exportar',
           },
           
-          // License Panel
-          license: {
-            title: 'Licença',
-            serialNumber: 'Número de Série',
-            add: 'Adicionar',
-            authorized: 'Dispositivos Autorizados',
-            unauthorized: 'Não Autorizado',
-            authorizedMessage: 'Autorizado',
-            unauthorizedWarning: 'Este dispositivo não está autorizado a usar o software.',
-          },
-          
           // Login and Authentication
           login: {
             title: 'Login Administrativo',
@@ -140,7 +129,8 @@ i18n
             deviceAdded: 'Dispositivo adicionado com sucesso',
             deviceRemoved: 'Dispositivo removido com sucesso',
             noDevices: 'Nenhum dispositivo autorizado',
-            loginRequired: 'Login necessário para gerenciar licenças'
+            loginRequired: 'Login necessário para gerenciar licenças',
+            authorizedMessage: 'Autorizado'
           },
         }
       },
@@ -229,17 +219,6 @@ i18n
             exportButton: 'Exportar',
           },
           
-          // License Panel
-          license: {
-            title: 'Licencia',
-            serialNumber: 'Número de Serie',
-            add: 'Agregar',
-            authorized: 'Dispositivos Autorizados',
-            unauthorized: 'No Autorizado',
-            authorizedMessage: 'Autorizado',
-            unauthorizedWarning: 'Este dispositivo no está autorizado para usar el software.',
-          },
-          
           // Login and Authentication
           login: {
             title: 'Inicio de Sesión Administrativo',
@@ -272,7 +251,8 @@ i18n
             deviceAdded: 'Dispositivo agregado con éxito',
             deviceRemoved: 'Dispositivo eliminado con éxito',
             noDevices: 'Ningún dispositivo autorizado',
-            loginRequired: 'Inicio de sesión necesario para gestionar licencias'
+            loginRequired: 'Inicio de sesión necesario para gestionar licencias',
+            authorizedMessage: 'Autorizado'
           },
         }
       }
