@@ -105,11 +105,67 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     currents: []
   });
 
+  // PNORI processing state
+  const [pnoriReceived, setPnoriReceived] = useState(false);
+  const pnoriBufferRef = useRef<string>('');
+
   // Data simulation intervals
   const intervalsRef = useRef<{ wave?: NodeJS.Timeout, current?: NodeJS.Timeout }>({});
   
   // Current data time tracking
   const currentDataTimeRef = useRef<number>(Date.now());
+
+  const extractSerialFromPnori = useCallback((pnoriData: string) => {
+    // PNORI format: $PNORI,HHMMSS.ss,headID,status,...
+    // Extract 6 digits from headID
+    const parts = pnoriData.split(',');
+    if (parts.length >= 3) {
+      const headId = parts[2];
+      // Extract last 6 digits from headId
+      const serialMatch = headId.match(/\d{6}$/);
+      if (serialMatch) {
+        return serialMatch[0];
+      }
+    }
+    return null;
+  }, []);
+
+  const processPnoriData = useCallback((data: string) => {
+    // Buffer incoming data
+    pnoriBufferRef.current += data;
+    
+    // Look for complete PNORI sentences
+    const pnoriMatch = pnoriBufferRef.current.match(/\$PNORI,[^*]+\*[0-9A-F]{2}/);
+    if (pnoriMatch && !pnoriReceived) {
+      const pnoriSentence = pnoriMatch[0];
+      console.log('First PNORI received:', pnoriSentence);
+      
+      const extractedSerial = extractSerialFromPnori(pnoriSentence);
+      if (extractedSerial) {
+        console.log('Extracted serial number:', extractedSerial);
+        
+        const isAuthorized = authorizedDevices.includes(extractedSerial);
+        setCurrentDevice({
+          serialNumber: extractedSerial,
+          isAuthorized
+        });
+        
+        setPnoriReceived(true);
+        
+        // Log authorization status
+        if (isAuthorized) {
+          console.log('Device authorized:', extractedSerial);
+        } else {
+          console.warn('Device NOT authorized:', extractedSerial);
+        }
+      }
+    }
+    
+    // Clear buffer if it gets too large
+    if (pnoriBufferRef.current.length > 1000) {
+      pnoriBufferRef.current = pnoriBufferRef.current.slice(-500);
+    }
+  }, [pnoriReceived, extractSerialFromPnori, authorizedDevices]);
 
   const addWaveData = useCallback((data: WaveData) => {
     console.log('Adding wave data:', data);
@@ -279,8 +335,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setConnectionStatus({ isConnected: false, isConnecting: true, error: null });
     
     try {
+      // Reset PNORI state on new connection
+      setPnoriReceived(false);
+      pnoriBufferRef.current = '';
+      setCurrentDevice(null);
+      
       // Simulação da conexão serial
       await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Simulate receiving PNORI data after connection
+      setTimeout(() => {
+        // Simulate PNORI with different serial numbers for testing
+        const testSerials = ['001234', '002345', '003456'];
+        const randomSerial = testSerials[Math.floor(Math.random() * testSerials.length)];
+        const mockPnori = `$PNORI,120000.00,ADC${randomSerial},1,0,0,0,0,0,0,0,0,0,0,0,0,0*5A`;
+        processPnoriData(mockPnori);
+      }, 2000);
       
       console.log('Connection successful!');
       setConnectionStatus({ isConnected: true, isConnecting: false, error: null });
@@ -294,7 +364,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
       return false;
     }
-  }, [serialConfig]);
+  }, [serialConfig, processPnoriData]);
 
   const disconnect = useCallback(async () => {
     try {
@@ -303,6 +373,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         portRef.current = null;
       }
       setConnectionStatus({ isConnected: false, isConnecting: false, error: null });
+      
+      // Reset PNORI state
+      setPnoriReceived(false);
+      pnoriBufferRef.current = '';
+      setCurrentDevice(null);
       
       // Stop measurement if running
       if (measurementState.isRunning) {

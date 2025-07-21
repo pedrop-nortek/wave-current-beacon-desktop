@@ -2,7 +2,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import { AppProvider } from '@/contexts/AppContext';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { ConnectionPanel } from '@/components/ConnectionPanel';
 import { MeasurementControl } from '@/components/MeasurementControl';
 import { WaveDataDisplay } from '@/components/WaveDataDisplay';
@@ -13,69 +15,90 @@ import { LicensePanel } from '@/components/LicensePanel';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { ThemeSelector } from '@/components/ThemeSelector';
 import { GlobalAlerts } from '@/components/GlobalAlerts';
+import { Shield, User } from 'lucide-react';
 import '@/utils/i18n';
 
-const Index = () => {
+const AppContent = () => {
   const { t } = useTranslation();
+  const { isAuthenticated, user } = useAuth();
 
   return (
-    <AppProvider>
-      <div className="min-h-screen bg-background">
-        {/* Header */}
-        <header className="border-b bg-card">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <h1 className="text-2xl font-bold">{t('app.title')}</h1>
-            <div className="flex items-center gap-4">
-              <ThemeSelector />
-              <LanguageSelector />
-            </div>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b bg-card">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">{t('app.title')}</h1>
+          <div className="flex items-center gap-4">
+            {isAuthenticated && (
+              <Badge variant="default" className="bg-green-500">
+                <User className="h-3 w-3 mr-1" />
+                {user}
+              </Badge>
+            )}
+            <ThemeSelector />
+            <LanguageSelector />
           </div>
-        </header>
+        </div>
+      </header>
 
-        {/* Global Alerts */}
-        <GlobalAlerts />
+      {/* Global Alerts */}
+      <GlobalAlerts />
 
-        {/* Main Content */}
-        <main className="container mx-auto px-4 py-6">
-          <div className="space-y-6">
-            {/* Connection and Control Panel */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ConnectionPanel />
-              <MeasurementControl />
-            </div>
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-6">
+        <div className="space-y-6">
+          {/* Connection and Control Panel */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ConnectionPanel />
+            <MeasurementControl />
+          </div>
 
-            {/* Data Visualization Tabs */}
-            <Tabs defaultValue="waves" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="waves">{t('waves.title')}</TabsTrigger>
-                <TabsTrigger value="currents">{t('currents.title')}</TabsTrigger>
-                <TabsTrigger value="alerts">{t('alerts.title')}</TabsTrigger>
-                <TabsTrigger value="settings">{t('settings')}</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="waves">
-                <WaveDataDisplay />
-              </TabsContent>
-              
-              <TabsContent value="currents">
-                <CurrentDataDisplay />
-              </TabsContent>
-              
-              <TabsContent value="alerts">
-                <AlertsPanel />
-              </TabsContent>
-              
-              <TabsContent value="settings">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <ExportPanel />
-                  <LicensePanel />
+          {/* Data Visualization Tabs */}
+          <Tabs defaultValue="waves" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="waves">{t('waves.title')}</TabsTrigger>
+              <TabsTrigger value="currents">{t('currents.title')}</TabsTrigger>
+              <TabsTrigger value="alerts">{t('alerts.title')}</TabsTrigger>
+              <TabsTrigger value="settings">
+                <div className="flex items-center gap-1">
+                  <Shield className="h-4 w-4" />
+                  {t('settings')}
                 </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </main>
-      </div>
-    </AppProvider>
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="waves">
+              <WaveDataDisplay />
+            </TabsContent>
+            
+            <TabsContent value="currents">
+              <CurrentDataDisplay />
+            </TabsContent>
+            
+            <TabsContent value="alerts">
+              <AlertsPanel />
+            </TabsContent>
+            
+            <TabsContent value="settings">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <ExportPanel />
+                <LicensePanel />
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <AuthProvider>
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
+    </AuthProvider>
   );
 };
 

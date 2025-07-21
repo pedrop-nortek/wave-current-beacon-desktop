@@ -1,302 +1,282 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-
-const resources = {
-  pt: {
-    translation: {
-      // Header
-      "app.title": "Monitor de Ondas e Correntes",
-      "language": "Idioma",
-      
-      // Theme
-      "theme.light": "Claro",
-      "theme.dark": "Escuro", 
-      "theme.system": "Sistema",
-      
-      // Connection
-      "connection.title": "Conexão Serial",
-      "connection.port": "Porta COM",
-      "connection.baudrate": "Baud Rate",
-      "connection.selectPort": "Selecionar porta",
-      "connection.refresh": "Atualizar portas",
-      "connection.connect": "Conectar",
-      "connection.disconnect": "Desconectar",
-      "connection.connecting": "Conectando...",
-      "connection.connected": "Conectado com sucesso",
-      "connection.disconnected": "Desconectado",
-      "connection.error": "Erro de conexão",
-      
-      // Measurement
-      "measurement.start": "Iniciar Medição",
-      "measurement.stop": "Parar Medição",
-      "measurement.status": "Status da Medição",
-      "measurement.running": "Em execução",
-      "measurement.stopped": "Parado",
-      "measurement.initializing": "Inicializando equipamento...",
-      
-      // Waves
-      "waves.title": "Parâmetros de Ondas",
-      "waves.hm0": "Hm0 (m)",
-      "waves.hmax": "Hmax (m)",
-      "waves.mdir": "Direção Principal (°)",
-      "waves.tm02": "Tm02 (s)",
-      "waves.tp": "Tp (s)",
-      "waves.pressure": "Pressão (hPa)",
-      "waves.temperature": "Temperatura (°C)",
-      "waves.pitch": "Pitch (°)",
-      "waves.roll": "Roll (°)",
-      "waves.datetime": "Data/Hora",
-      "waves.lastValues": "Últimos Valores",
-      
-      // Currents
-      "currents.title": "Perfil de Correntes",
-      "currents.velocity": "Velocidade",
-      "currents.direction": "Direção",
-      "currents.depth": "Profundidade (m)",
-      "currents.time": "Tempo",
-      "currents.intensity": "Intensidade (m/s)",
-      "currents.angle": "Ângulo (°)",
-      
-      // Alerts
-      "alerts.title": "Configuração de Alertas",
-      "alerts.hm0Limit": "Limite Hm0 (m)",
-      "alerts.hmaxLimit": "Limite Hmax (m)",
-      "alerts.tm02Limit": "Limite Tm02 (s)",
-      "alerts.enableAlerts": "Habilitar alertas",
-      "alerts.enableSound": "Ativar som dos alertas",
-      "alerts.warning": "ALERTA: Limite excedido!",
-      
-      // Export
-      "export.title": "Exportar Dados",
-      "export.dateRange": "Intervalo de Data",
-      "export.startDate": "Data Início",
-      "export.endDate": "Data Fim",
-      "export.waveHeightFilter": "Filtro Altura de Onda",
-      "export.minHeight": "Altura Mínima (m)",
-      "export.maxHeight": "Altura Máxima (m)",
-      "export.export": "Exportar Excel",
-      "export.success": "Dados exportados com sucesso!",
-      
-      // License
-      "license.title": "Gerenciamento de Licenças",
-      "license.serialNumber": "Número de Série",
-      "license.authorized": "Equipamentos Autorizados",
-      "license.add": "Adicionar",
-      "license.remove": "Remover",
-      "license.unauthorized": "Equipamento não autorizado",
-      "license.authorized.message": "Equipamento autorizado",
-      
-      // General
-      "save": "Salvar",
-      "cancel": "Cancelar",
-      "close": "Fechar",
-      "error": "Erro",
-      "success": "Sucesso",
-      "loading": "Carregando...",
-      "noData": "Sem dados",
-      "settings": "Configurações"
-    }
-  },
-  es: {
-    translation: {
-      // Header
-      "app.title": "Monitor de Olas y Corrientes",
-      "language": "Idioma",
-      
-      // Theme
-      "theme.light": "Claro",
-      "theme.dark": "Oscuro",
-      "theme.system": "Sistema",
-      
-      // Connection
-      "connection.title": "Conexión Serie",
-      "connection.port": "Puerto COM",
-      "connection.baudrate": "Velocidad en Baudios",
-      "connection.selectPort": "Seleccionar puerto",
-      "connection.refresh": "Actualizar puertos",
-      "connection.connect": "Conectar",
-      "connection.disconnect": "Desconectar",
-      "connection.connecting": "Conectando...",
-      "connection.connected": "Conectado con éxito",
-      "connection.disconnected": "Desconectado",
-      "connection.error": "Error de conexión",
-      
-      // Measurement
-      "measurement.start": "Iniciar Medición",
-      "measurement.stop": "Detener Medición",
-      "measurement.status": "Estado de la Medición",
-      "measurement.running": "En ejecución",
-      "measurement.stopped": "Detenido",
-      "measurement.initializing": "Inicializando equipo...",
-      
-      // Waves
-      "waves.title": "Parámetros de Olas",
-      "waves.hm0": "Hm0 (m)",
-      "waves.hmax": "Hmax (m)",
-      "waves.mdir": "Dirección Principal (°)",
-      "waves.tm02": "Tm02 (s)",
-      "waves.tp": "Tp (s)",
-      "waves.pressure": "Presión (hPa)",
-      "waves.temperature": "Temperatura (°C)",
-      "waves.pitch": "Cabeceo (°)",
-      "waves.roll": "Balanceo (°)",
-      "waves.datetime": "Fecha/Hora",
-      "waves.lastValues": "Últimos Valores",
-      
-      // Currents
-      "currents.title": "Perfil de Corrientes",
-      "currents.velocity": "Velocidad",
-      "currents.direction": "Dirección",
-      "currents.depth": "Profundidad (m)",
-      "currents.time": "Tiempo",
-      "currents.intensity": "Intensidad (m/s)",
-      "currents.angle": "Ángulo (°)",
-      
-      // Alerts
-      "alerts.title": "Configuración de Alertas",
-      "alerts.hm0Limit": "Límite Hm0 (m)",
-      "alerts.hmaxLimit": "Límite Hmax (m)",
-      "alerts.tm02Limit": "Límite Tm02 (s)",
-      "alerts.enableAlerts": "Habilitar alertas",
-      "alerts.enableSound": "Activar sonido de alertas",
-      "alerts.warning": "ALERTA: ¡Límite excedido!",
-      
-      // Export
-      "export.title": "Exportar Datos",
-      "export.dateRange": "Rango de Fechas",
-      "export.startDate": "Fecha de Inicio",
-      "export.endDate": "Fecha de Fin",
-      "export.waveHeightFilter": "Filtro de Altura de Ola",
-      "export.minHeight": "Altura Mínima (m)",
-      "export.maxHeight": "Altura Máxima (m)",
-      "export.export": "Exportar a Excel",
-      "export.success": "¡Datos exportados con éxito!",
-      
-      // License
-      "license.title": "Administración de Licencias",
-      "license.serialNumber": "Número de Serie",
-      "license.authorized": "Equipos Autorizados",
-      "license.add": "Agregar",
-      "license.remove": "Eliminar",
-      "license.unauthorized": "Equipo no autorizado",
-      "license.authorized.message": "Equipo autorizado",
-      
-      // General
-      "save": "Guardar",
-      "cancel": "Cancelar",
-      "close": "Cerrar",
-      "error": "Error",
-      "success": "Éxito",
-      "loading": "Cargando...",
-      "noData": "Sin datos",
-      "settings": "Configuración"
-    }
-  },
-  en: {
-    translation: {
-      // Header
-      "app.title": "Wave and Current Monitor",
-      "language": "Language",
-      
-      // Theme
-      "theme.light": "Light",
-      "theme.dark": "Dark",
-      "theme.system": "System",
-      
-      // Connection
-      "connection.title": "Serial Connection",
-      "connection.port": "COM Port",
-      "connection.baudrate": "Baud Rate",
-      "connection.selectPort": "Select port",
-      "connection.refresh": "Refresh ports",
-      "connection.connect": "Connect",
-      "connection.disconnect": "Disconnect",
-      "connection.connecting": "Connecting...",
-      "connection.connected": "Successfully connected",
-      "connection.disconnected": "Disconnected",
-      "connection.error": "Connection error",
-      
-      // Measurement
-      "measurement.start": "Start Measurement",
-      "measurement.stop": "Stop Measurement",
-      "measurement.status": "Measurement Status",
-      "measurement.running": "Running",
-      "measurement.stopped": "Stopped",
-      "measurement.initializing": "Initializing equipment...",
-      
-      // Waves
-      "waves.title": "Wave Parameters",
-      "waves.hm0": "Hm0 (m)",
-      "waves.hmax": "Hmax (m)",
-      "waves.mdir": "Main Direction (°)",
-      "waves.tm02": "Tm02 (s)",
-      "waves.tp": "Tp (s)",
-      "waves.pressure": "Pressure (hPa)",
-      "waves.temperature": "Temperature (°C)",
-      "waves.pitch": "Pitch (°)",
-      "waves.roll": "Roll (°)",
-      "waves.datetime": "Date/Time",
-      "waves.lastValues": "Latest Values",
-      
-      // Currents
-      "currents.title": "Current Profile",
-      "currents.velocity": "Velocity",
-      "currents.direction": "Direction",
-      "currents.depth": "Depth (m)",
-      "currents.time": "Time",
-      "currents.intensity": "Intensity (m/s)",
-      "currents.angle": "Angle (°)",
-      
-      // Alerts
-      "alerts.title": "Alert Configuration",
-      "alerts.hm0Limit": "Hm0 Limit (m)",
-      "alerts.hmaxLimit": "Hmax Limit (m)",
-      "alerts.tm02Limit": "Tm02 Limit (s)",
-      "alerts.enableAlerts": "Enable alerts",
-      "alerts.enableSound": "Enable alert sound",
-      "alerts.warning": "ALERT: Limit exceeded!",
-      
-      // Export
-      "export.title": "Export Data",
-      "export.dateRange": "Date Range",
-      "export.startDate": "Start Date",
-      "export.endDate": "End Date",
-      "export.waveHeightFilter": "Wave Height Filter",
-      "export.minHeight": "Min Height (m)",
-      "export.maxHeight": "Max Height (m)",
-      "export.export": "Export to Excel",
-      "export.success": "Data exported successfully!",
-      
-      // License
-      "license.title": "License Management",
-      "license.serialNumber": "Serial Number",
-      "license.authorized": "Authorized Equipment",
-      "license.add": "Add",
-      "license.remove": "Remove",
-      "license.unauthorized": "Unauthorized equipment",
-      "license.authorized.message": "Authorized equipment",
-      
-      // General
-      "save": "Save",
-      "cancel": "Cancel",
-      "close": "Close",
-      "error": "Error",
-      "success": "Success",
-      "loading": "Loading...",
-      "noData": "No data",
-      "settings": "Settings"
-    }
-  }
-};
+import LanguageDetector from 'i18next-browser-languagedetector';
 
 i18n
+  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources,
-    lng: 'pt',
+    debug: false,
+    fallbackLng: 'pt',
     interpolation: {
       escapeValue: false,
     },
+    resources: {
+      pt: {
+        translation: {
+          // General
+          app: {
+            title: 'ADCP Monitor',
+            version: 'Versão',
+          },
+          save: 'Salvar',
+          cancel: 'Cancelar',
+          settings: 'Configurações',
+          
+          // Connection Panel
+          connection: {
+            title: 'Conexão Serial',
+            port: 'Porta Serial',
+            baudRate: 'Baud Rate',
+            connect: 'Conectar',
+            disconnect: 'Desconectar',
+            status: 'Status',
+            connected: 'Conectado',
+            disconnected: 'Desconectado',
+            selectPort: 'Selecionar porta',
+            errorBaudRate: 'Baud Rate inválido',
+          },
+          
+          // Waves Data Display
+          waves: {
+            title: 'Ondas',
+            hm0: 'Altura Significativa (Hm0)',
+            hmax: 'Altura Máxima (Hmax)',
+            mdir: 'Direção Média (Mdir)',
+            tm02: 'Período Médio (Tm02)',
+            tp: 'Período de Pico (Tp)',
+            pressure: 'Pressão',
+            temperature: 'Temperatura',
+            pitch: 'Inclinação',
+            roll: 'Balanço',
+          },
+          
+          // Currents Data Display
+          currents: {
+            title: 'Correntes',
+            cellNumber: 'Célula',
+            depth: 'Profundidade',
+            velocity: 'Velocidade',
+            direction: 'Direção',
+          },
+          
+          // Measurement Control
+          measurement: {
+            title: 'Controle de Medição',
+            start: 'Iniciar Medição',
+            stop: 'Parar Medição',
+            clearData: 'Limpar Dados',
+            exportData: 'Exportar Dados',
+            running: 'Medição em Andamento',
+            stopped: 'Medição Parada',
+            startTime: 'Início',
+            duration: 'Duração',
+          },
+          
+          // Alerts Panel
+          alerts: {
+            title: 'Alertas',
+            enableAlerts: 'Habilitar Alertas',
+            enableSound: 'Habilitar Som',
+            hm0Limit: 'Limite de Hm0 (m)',
+            hmaxLimit: 'Limite de Hmax (m)',
+            tm02Limit: 'Limite de Tm02 (s)',
+            warning: 'Atenção!',
+          },
+          
+          // Export Panel
+          export: {
+            title: 'Exportar Dados',
+            description: 'Selecione o formato e período para exportar os dados.',
+            format: 'Formato',
+            period: 'Período',
+            all: 'Todos os dados',
+            lastHour: 'Última hora',
+            last24Hours: 'Últimas 24 horas',
+            lastWeek: 'Última semana',
+            exportButton: 'Exportar',
+          },
+          
+          // License Panel
+          license: {
+            title: 'Licença',
+            serialNumber: 'Número de Série',
+            add: 'Adicionar',
+            authorized: 'Dispositivos Autorizados',
+            unauthorized: 'Não Autorizado',
+            authorizedMessage: 'Autorizado',
+            unauthorizedWarning: 'Este dispositivo não está autorizado a usar o software.',
+          },
+          
+          // Login and Authentication
+          login: {
+            title: 'Login Administrativo',
+            description: 'Acesso necessário para gerenciar licenças de dispositivos.',
+            username: 'Usuário',
+            password: 'Senha',
+            usernamePlaceholder: 'Digite o nome de usuário',
+            passwordPlaceholder: 'Digite a senha',
+            login: 'Entrar',
+            logout: 'Sair',
+            loggingIn: 'Entrando...',
+            loggedOut: 'Logout realizado com sucesso',
+            invalidCredentials: 'Usuário ou senha inválidos',
+            error: 'Erro ao fazer login',
+            blocked: 'Acesso bloqueado por {{time}} devido a tentativas excessivas',
+            attempts: 'Tentativas: {{attempts}}/{{max}}',
+            loginRequired: 'Login necessário para gerenciar licenças'
+          },
+          
+          // License Management
+          license: {
+            title: 'Gerenciamento de Licenças',
+            connectedDevice: 'Dispositivo Conectado',
+            authorized: 'Dispositivos Autorizados',
+            unauthorized: 'Não Autorizado',
+            unauthorizedWarning: 'Este dispositivo não está autorizado a usar o software.',
+            serialNumber: 'Número de Série',
+            add: 'Adicionar',
+            serialExists: 'Número de série já cadastrado',
+            deviceAdded: 'Dispositivo adicionado com sucesso',
+            deviceRemoved: 'Dispositivo removido com sucesso',
+            noDevices: 'Nenhum dispositivo autorizado',
+            loginRequired: 'Login necessário para gerenciar licenças'
+          },
+        }
+      },
+      es: {
+        translation: {
+          // General
+          app: {
+            title: 'Monitor ADCP',
+            version: 'Versión',
+          },
+          save: 'Guardar',
+          cancel: 'Cancelar',
+          settings: 'Configuraciones',
+          
+          // Connection Panel
+          connection: {
+            title: 'Conexión Serial',
+            port: 'Puerto Serial',
+            baudRate: 'Baud Rate',
+            connect: 'Conectar',
+            disconnect: 'Desconectar',
+            status: 'Estado',
+            connected: 'Conectado',
+            disconnected: 'Desconectado',
+            selectPort: 'Seleccionar puerto',
+            errorBaudRate: 'Baud Rate inválido',
+          },
+          
+          // Waves Data Display
+          waves: {
+            title: 'Olas',
+            hm0: 'Altura Significativa (Hm0)',
+            hmax: 'Altura Máxima (Hmax)',
+            mdir: 'Dirección Media (Mdir)',
+            tm02: 'Período Medio (Tm02)',
+            tp: 'Período de Pico (Tp)',
+            pressure: 'Presión',
+            temperature: 'Temperatura',
+            pitch: 'Inclinación',
+            roll: 'Balanceo',
+          },
+          
+          // Currents Data Display
+          currents: {
+            title: 'Corrientes',
+            cellNumber: 'Celda',
+            depth: 'Profundidad',
+            velocity: 'Velocidad',
+            direction: 'Dirección',
+          },
+          
+          // Measurement Control
+          measurement: {
+            title: 'Control de Medición',
+            start: 'Iniciar Medición',
+            stop: 'Detener Medición',
+            clearData: 'Limpiar Datos',
+            exportData: 'Exportar Datos',
+            running: 'Medición en Curso',
+            stopped: 'Medición Detenida',
+            startTime: 'Inicio',
+            duration: 'Duración',
+          },
+          
+          // Alerts Panel
+          alerts: {
+            title: 'Alertas',
+            enableAlerts: 'Habilitar Alertas',
+            enableSound: 'Habilitar Sonido',
+            hm0Limit: 'Límite de Hm0 (m)',
+            hmaxLimit: 'Límite de Hmax (m)',
+            tm02Limit: 'Límite de Tm02 (s)',
+            warning: '¡Atención!',
+          },
+          
+          // Export Panel
+          export: {
+            title: 'Exportar Datos',
+            description: 'Seleccione el formato y período para exportar los datos.',
+            format: 'Formato',
+            period: 'Período',
+            all: 'Todos los datos',
+            lastHour: 'Última hora',
+            last24Hours: 'Últimas 24 horas',
+            lastWeek: 'Última semana',
+            exportButton: 'Exportar',
+          },
+          
+          // License Panel
+          license: {
+            title: 'Licencia',
+            serialNumber: 'Número de Serie',
+            add: 'Agregar',
+            authorized: 'Dispositivos Autorizados',
+            unauthorized: 'No Autorizado',
+            authorizedMessage: 'Autorizado',
+            unauthorizedWarning: 'Este dispositivo no está autorizado para usar el software.',
+          },
+          
+          // Login and Authentication
+          login: {
+            title: 'Inicio de Sesión Administrativo',
+            description: 'Acceso necesario para gestionar licencias de dispositivos.',
+            username: 'Usuario',
+            password: 'Contraseña',
+            usernamePlaceholder: 'Ingrese el nombre de usuario',
+            passwordPlaceholder: 'Ingrese la contraseña',
+            login: 'Iniciar',
+            logout: 'Cerrar',
+            loggingIn: 'Iniciando...',
+            loggedOut: 'Sesión cerrada con éxito',
+            invalidCredentials: 'Usuario o contraseña inválidos',
+            error: 'Error al iniciar sesión',
+            blocked: 'Acceso bloqueado por {{time}} debido a intentos excesivos',
+            attempts: 'Intentos: {{attempts}}/{{max}}',
+            loginRequired: 'Inicio de sesión necesario para gestionar licencias'
+          },
+          
+          // License Management
+          license: {
+            title: 'Gestión de Licencias',
+            connectedDevice: 'Dispositivo Conectado',
+            authorized: 'Dispositivos Autorizados',
+            unauthorized: 'No Autorizado',
+            unauthorizedWarning: 'Este dispositivo no está autorizado para usar el software.',
+            serialNumber: 'Número de Serie',
+            add: 'Agregar',
+            serialExists: 'Número de serie ya registrado',
+            deviceAdded: 'Dispositivo agregado con éxito',
+            deviceRemoved: 'Dispositivo eliminado con éxito',
+            noDevices: 'Ningún dispositivo autorizado',
+            loginRequired: 'Inicio de sesión necesario para gestionar licencias'
+          },
+        }
+      }
+    }
   });
 
 export default i18n;
