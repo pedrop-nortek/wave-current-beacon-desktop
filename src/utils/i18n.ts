@@ -63,6 +63,7 @@ const resources = {
       "alerts.hmaxLimit": "Limite Hmax (m)",
       "alerts.tm02Limit": "Limite Tm02 (s)",
       "alerts.enableAlerts": "Habilitar alertas",
+      "alerts.enableSound": "Ativar som dos alertas",
       "alerts.warning": "ALERTA: Limite excedido!",
       
       // Export
@@ -157,6 +158,7 @@ const resources = {
       "alerts.hmaxLimit": "Límite Hmax (m)",
       "alerts.tm02Limit": "Límite Tm02 (s)",
       "alerts.enableAlerts": "Habilitar alertas",
+      "alerts.enableSound": "Activar sonido de alertas",
       "alerts.warning": "ALERTA: ¡Límite excedido!",
       
       // Export
@@ -188,6 +190,101 @@ const resources = {
       "loading": "Cargando...",
       "noData": "Sin datos",
       "settings": "Configuración"
+    }
+  },
+  en: {
+    translation: {
+      // Header
+      "app.title": "Wave and Current Monitor",
+      "language": "Language",
+      
+      // Theme
+      "theme.light": "Light",
+      "theme.dark": "Dark",
+      "theme.system": "System",
+      
+      // Connection
+      "connection.title": "Serial Connection",
+      "connection.port": "COM Port",
+      "connection.baudrate": "Baud Rate",
+      "connection.selectPort": "Select port",
+      "connection.refresh": "Refresh ports",
+      "connection.connect": "Connect",
+      "connection.disconnect": "Disconnect",
+      "connection.connecting": "Connecting...",
+      "connection.connected": "Successfully connected",
+      "connection.disconnected": "Disconnected",
+      "connection.error": "Connection error",
+      
+      // Measurement
+      "measurement.start": "Start Measurement",
+      "measurement.stop": "Stop Measurement",
+      "measurement.status": "Measurement Status",
+      "measurement.running": "Running",
+      "measurement.stopped": "Stopped",
+      "measurement.initializing": "Initializing equipment...",
+      
+      // Waves
+      "waves.title": "Wave Parameters",
+      "waves.hm0": "Hm0 (m)",
+      "waves.hmax": "Hmax (m)",
+      "waves.mdir": "Main Direction (°)",
+      "waves.tm02": "Tm02 (s)",
+      "waves.tp": "Tp (s)",
+      "waves.pressure": "Pressure (hPa)",
+      "waves.temperature": "Temperature (°C)",
+      "waves.pitch": "Pitch (°)",
+      "waves.roll": "Roll (°)",
+      "waves.datetime": "Date/Time",
+      "waves.lastValues": "Latest Values",
+      
+      // Currents
+      "currents.title": "Current Profile",
+      "currents.velocity": "Velocity",
+      "currents.direction": "Direction",
+      "currents.depth": "Depth (m)",
+      "currents.time": "Time",
+      "currents.intensity": "Intensity (m/s)",
+      "currents.angle": "Angle (°)",
+      
+      // Alerts
+      "alerts.title": "Alert Configuration",
+      "alerts.hm0Limit": "Hm0 Limit (m)",
+      "alerts.hmaxLimit": "Hmax Limit (m)",
+      "alerts.tm02Limit": "Tm02 Limit (s)",
+      "alerts.enableAlerts": "Enable alerts",
+      "alerts.enableSound": "Enable alert sound",
+      "alerts.warning": "ALERT: Limit exceeded!",
+      
+      // Export
+      "export.title": "Export Data",
+      "export.dateRange": "Date Range",
+      "export.startDate": "Start Date",
+      "export.endDate": "End Date",
+      "export.waveHeightFilter": "Wave Height Filter",
+      "export.minHeight": "Min Height (m)",
+      "export.maxHeight": "Max Height (m)",
+      "export.export": "Export to Excel",
+      "export.success": "Data exported successfully!",
+      
+      // License
+      "license.title": "License Management",
+      "license.serialNumber": "Serial Number",
+      "license.authorized": "Authorized Equipment",
+      "license.add": "Add",
+      "license.remove": "Remove",
+      "license.unauthorized": "Unauthorized equipment",
+      "license.authorized.message": "Authorized equipment",
+      
+      // General
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "error": "Error",
+      "success": "Success",
+      "loading": "Loading...",
+      "noData": "No data",
+      "settings": "Settings"
     }
   }
 };

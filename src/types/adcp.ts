@@ -38,6 +38,7 @@ export interface AlertConfig {
   hmaxLimit: number;
   tm02Limit: number;
   enableAlerts: boolean;
+  enableAlertSound: boolean;
 }
 
 export interface MeasurementState {

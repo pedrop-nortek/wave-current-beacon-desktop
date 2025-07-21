@@ -5,11 +5,14 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppContext } from '@/contexts/AppContext';
+import { useAlertSound } from '@/hooks/useAlertSound';
 
 export const GlobalAlerts: React.FC = () => {
   const { t } = useTranslation();
   const { lastWaveData, alertConfig } = useAppContext();
   const [dismissedAlerts, setDismissedAlerts] = React.useState<string[]>([]);
+  const { playAlertSound } = useAlertSound(alertConfig.enableAlertSound);
+  const previousAlertsRef = React.useRef<string[]>([]);
 
   const activeAlerts = React.useMemo(() => {
     if (!lastWaveData || !alertConfig.enableAlerts) return [];
@@ -57,7 +60,29 @@ export const GlobalAlerts: React.FC = () => {
     }
 
     return alerts;
-  }, [lastWaveData, alertConfig, dismissedAlerts, t]);
+  }, [lastWaveData, alertConfig, dismissedAlerts]);
+
+  // Play sound for new alerts
+  React.useEffect(() => {
+    if (activeAlerts.length > 0 && alertConfig.enableAlerts && alertConfig.enableAlertSound) {
+      const currentAlertIds = activeAlerts.map(alert => alert.id);
+      const newAlerts = currentAlertIds.filter(id => !previousAlertsRef.current.includes(id));
+      
+      if (newAlerts.length > 0) {
+        playAlertSound();
+      }
+      
+      previousAlertsRef.current = currentAlertIds;
+    }
+  }, [activeAlerts, alertConfig.enableAlerts, alertConfig.enableAlertSound, playAlertSound]);
+
+  // Clear dismissed alerts when alerts are disabled
+  React.useEffect(() => {
+    if (!alertConfig.enableAlerts) {
+      setDismissedAlerts([]);
+      previousAlertsRef.current = [];
+    }
+  }, [alertConfig.enableAlerts]);
 
   const dismissAlert = (alertId: string) => {
     setDismissedAlerts(prev => [...prev, alertId]);

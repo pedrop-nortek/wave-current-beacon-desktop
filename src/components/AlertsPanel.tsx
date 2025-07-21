@@ -73,6 +73,19 @@ export const AlertsPanel: React.FC = () => {
             </label>
           </div>
 
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={localConfig.enableAlertSound}
+              onCheckedChange={(checked) => 
+                setLocalConfig(prev => ({ ...prev, enableAlertSound: checked }))
+              }
+              disabled={!localConfig.enableAlerts}
+            />
+            <label className="text-sm font-medium">
+              {t('alerts.enableSound')}
+            </label>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">

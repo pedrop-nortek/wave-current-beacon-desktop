@@ -75,7 +75,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     hm0Limit: 3.0,
     hmaxLimit: 5.0,
     tm02Limit: 10.0,
-    enableAlerts: true
+    enableAlerts: false,
+    enableAlertSound: true
   });
   
   const [authorizedDevices, setAuthorizedDevices] = useState<string[]>([
