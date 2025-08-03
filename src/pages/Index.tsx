@@ -15,6 +15,7 @@ import { LicensePanel } from '@/components/LicensePanel';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { ThemeSelector } from '@/components/ThemeSelector';
 import { GlobalAlerts } from '@/components/GlobalAlerts';
+import { DashboardContainer } from '@/components/dashboard/DashboardContainer';
 import { Shield, User } from 'lucide-react';
 import '@/utils/i18n';
 
@@ -54,8 +55,9 @@ const AppContent = () => {
           </div>
 
           {/* Data Visualization Tabs */}
-          <Tabs defaultValue="waves" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+          <Tabs defaultValue="dashboard" className="w-full">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
               <TabsTrigger value="waves">{t('waves.title')}</TabsTrigger>
               <TabsTrigger value="currents">{t('currents.title')}</TabsTrigger>
               <TabsTrigger value="alerts">{t('alerts.title')}</TabsTrigger>
@@ -66,6 +68,10 @@ const AppContent = () => {
                 </div>
               </TabsTrigger>
             </TabsList>
+            
+            <TabsContent value="dashboard" className="h-[calc(100vh-300px)]">
+              <DashboardContainer />
+            </TabsContent>
             
             <TabsContent value="waves">
               <WaveDataDisplay />

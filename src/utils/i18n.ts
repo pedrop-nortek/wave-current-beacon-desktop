@@ -132,6 +132,20 @@ i18n
             loginRequired: 'Login necessário para gerenciar licenças',
             authorizedMessage: 'Autorizado'
           },
+
+          // Dashboard
+          dashboard: {
+            title: 'Dashboard',
+            editMode: 'Modo de Edição',
+            addWidget: 'Adicionar Widget',
+            doneEditing: 'Finalizar Edição',
+            emptyDashboard: 'Dashboard Vazio',
+            addFirstWidget: 'Clique em "Adicionar Widget" para começar a construir seu dashboard',
+            widgetPalette: 'Paleta de Widgets',
+            quickAdd: 'Adição Rápida',
+            waveParameters: 'Parâmetros de Ondas',
+            currentParameters: 'Parâmetros de Correntes'
+          },
         }
       },
       es: {
