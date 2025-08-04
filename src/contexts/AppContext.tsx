@@ -432,6 +432,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         temperature: 18 + Math.random() * 8,
         pitch: -2 + Math.random() * 4,
         roll: -1 + Math.random() * 2,
+        
+        // New required fields for expanded WaveData interface
+        peakDirection: Math.random() * 360,
+        mainDirection: Math.random() * 360,
+        directionalityIndex: Math.random(),
+        date: new Date(),
         timestamp: new Date()
       };
 
@@ -454,6 +460,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           depth: cell * 0.3, // 30cm cell size
           velocity: Math.random() * 0.5,
           direction: Math.random() * 360,
+          
+          // New required fields for expanded CurrentData interface
+          eastComponent: Math.random() * 0.3 - 0.15,
+          northComponent: Math.random() * 0.3 - 0.15,
+          echoIntensity: [80, 85, 82, 78].map(() => Math.floor(Math.random() * 20 + 60)),
+          correlation: [85, 90, 88, 83].map(() => Math.floor(Math.random() * 15 + 75)),
+          
           timestamp: profileTimestamp // Same timestamp for all cells in this profile
         };
 

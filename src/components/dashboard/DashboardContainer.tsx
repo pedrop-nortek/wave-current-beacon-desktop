@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Responsive, WidthProvider, Layout } from 'react-grid-layout';
 import { WidgetWrapper } from './WidgetWrapper';
 import { WidgetPalette } from './WidgetPalette';
+import { WidgetConfigurator } from './WidgetConfigurator';
 import { useDashboard } from '@/hooks/useDashboard';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -21,10 +22,13 @@ export function DashboardContainer() {
     selectedWidgetId,
     addWidget,
     removeWidget,
+    updateWidget,
     updateLayout,
     toggleEditMode,
     selectWidget
   } = useDashboard();
+  
+  const [configuringWidgetId, setConfiguringWidgetId] = React.useState<string | null>(null);
 
   const gridLayouts = useMemo(() => {
     const layout: Layout[] = activeLayout.widgets.map(widget => ({
@@ -47,9 +51,16 @@ export function DashboardContainer() {
   };
 
   const handleConfigure = (widgetId: string) => {
-    // TODO: Open widget configuration dialog
-    console.log('Configure widget:', widgetId);
+    setConfiguringWidgetId(widgetId);
   };
+
+  const handleCloseConfigurator = () => {
+    setConfiguringWidgetId(null);
+  };
+
+  const configuringWidget = configuringWidgetId 
+    ? activeLayout.widgets.find(w => w.id === configuringWidgetId) || null
+    : null;
 
   return (
     <div className="h-full w-full relative">
@@ -135,8 +146,9 @@ export function DashboardContainer() {
             isDraggable={isEditMode}
             isResizable={isEditMode}
             useCSSTransforms={true}
-            preventCollision={false}
-            compactType="vertical"
+            preventCollision={true}
+            compactType={null}
+            autoSize={true}
           >
             {activeLayout.widgets.map(widget => (
               <div key={widget.id} className="widget-container">
@@ -153,6 +165,14 @@ export function DashboardContainer() {
           </ResponsiveGridLayout>
         )}
       </div>
+
+      {/* Widget Configurator */}
+      <WidgetConfigurator
+        widget={configuringWidget}
+        isOpen={!!configuringWidgetId}
+        onClose={handleCloseConfigurator}
+        onSave={updateWidget}
+      />
     </div>
   );
 }

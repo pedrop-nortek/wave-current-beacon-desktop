@@ -1,6 +1,12 @@
 import React from 'react';
 import { WidgetConfig } from '@/types/dashboard';
-import { CompassWidget, SpeedometerWidget } from './widgets';
+import { 
+  CompassWidget, 
+  SpeedometerWidget, 
+  TimelineWidget, 
+  GaugeWidget, 
+  CardWidget 
+} from './widgets';
 import { WaveDataDisplay } from '@/components/WaveDataDisplay';
 import { CurrentDataDisplay } from '@/components/CurrentDataDisplay';
 import { X, Settings } from 'lucide-react';
@@ -30,7 +36,11 @@ export function WidgetWrapper({
       case 'speedometer':
         return <SpeedometerWidget config={config} isEditing={isEditing} />;
       case 'timeline':
-        return <WaveDataDisplay />;
+        return <TimelineWidget config={config} isEditing={isEditing} />;
+      case 'gauge':
+        return <GaugeWidget config={config} isEditing={isEditing} />;
+      case 'card':
+        return <CardWidget config={config} isEditing={isEditing} />;
       case 'hovmoller':
         return <CurrentDataDisplay />;
       default:
