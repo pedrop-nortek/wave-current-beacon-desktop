@@ -213,6 +213,14 @@ export function useADCPData() {
     return points;
   }, [dataset]);
 
+  const getCurrentWaveData = useCallback((): WaveData | null => {
+    return dataset.latestWave || null;
+  }, [dataset]);
+
+  const getCurrentCurrentData = useCallback((): EnvironmentalData | null => {
+    return dataset.latestEnvironmental || null;
+  }, [dataset]);
+
   const processNMEAString = useCallback((nmeaString: string) => {
     const result = parser.parseNMEAString(nmeaString);
     if (!result) return;
@@ -257,6 +265,8 @@ export function useADCPData() {
     dataset,
     getTimeSeriesData,
     getHovmollerData,
+    getCurrentWaveData,
+    getCurrentCurrentData,
     processNMEAString,
     isConnected: dataset.isConnected
   };

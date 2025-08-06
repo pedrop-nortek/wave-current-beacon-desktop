@@ -1,6 +1,5 @@
 import { CurrentParameter, WaveParameter } from './NMEATypes';
 
-// Widget Types
 export type ADCPWidgetType = 
   | 'current-timeseries'
   | 'current-hovmoller'

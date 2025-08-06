@@ -1,23 +1,32 @@
 import { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Settings, Play, Pause } from 'lucide-react';
+import { Plus, Settings } from 'lucide-react';
 import { ResponsiveGridLayout } from 'react-grid-layout';
 import { 
   ADCPWidgetConfig, 
   ADCPDashboardState, 
   ADCP_WIDGET_DEFAULTS,
+  ADCPWidgetType,
   CurrentTimeSeriesSettings,
   CurrentHovmollerSettings,
   CurrentStatusTableSettings,
   CurrentSpeedCompassSettings,
-  WaveTimeSeriesSettings
+  WaveTimeSeriesSettings,
+  WaveStatusTableSettings,
+  WaveGaugeCompassSettings
 } from '@/types/ADCPDashboardTypes';
 import { CurrentTimeSeriesWidget } from './widgets/current/CurrentTimeSeriesWidget';
 import { CurrentHovmollerWidget } from './widgets/current/CurrentHovmollerWidget';
 import { CurrentStatusTableWidget } from './widgets/current/CurrentStatusTableWidget';
 import { CurrentSpeedCompassWidget } from './widgets/current/CurrentSpeedCompassWidget';
 import { WaveTimeSeriesWidget } from './widgets/wave/WaveTimeSeriesWidget';
+import { WaveStatusTableWidget } from './widgets/wave/WaveStatusTableWidget';
+import { WaveGaugeCompassWidget } from './widgets/wave/WaveGaugeCompassWidget';
+import { WidgetConfigurator } from './WidgetConfigurator';
+import { WidgetPalette } from './WidgetPalette';
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
 
 interface ADCPDashboardProps {
   initialState?: Partial<ADCPDashboardState>;
@@ -75,6 +84,9 @@ export function ADCPDashboard({ initialState }: ADCPDashboardProps) {
     }
   ]);
 
+  const [configuringWidget, setConfiguringWidget] = useState<ADCPWidgetConfig | null>(null);
+  const [showWidgetPalette, setShowWidgetPalette] = useState(false);
+
   const renderWidget = (widget: ADCPWidgetConfig) => {
     const commonProps = {
       id: widget.id,
@@ -92,6 +104,10 @@ export function ADCPDashboard({ initialState }: ADCPDashboardProps) {
         return <CurrentSpeedCompassWidget {...commonProps} settings={widget.settings as CurrentSpeedCompassSettings} />;
       case 'wave-timeseries':
         return <WaveTimeSeriesWidget {...commonProps} settings={widget.settings as WaveTimeSeriesSettings} />;
+      case 'wave-status-table':
+        return <WaveStatusTableWidget {...commonProps} settings={widget.settings as WaveStatusTableSettings} />;
+      case 'wave-gauge-compass':
+        return <WaveGaugeCompassWidget {...commonProps} settings={widget.settings as WaveGaugeCompassSettings} />;
       default:
         return (
           <Card className="h-full flex items-center justify-center">
@@ -112,6 +128,120 @@ export function ADCPDashboard({ initialState }: ADCPDashboardProps) {
     }));
   };
 
+  const getDefaultSettings = (type: ADCPWidgetType): any => {
+    switch (type) {
+      case 'current-timeseries':
+        return {
+          parameter: 'batteryVoltage',
+          timeRange: '6h',
+          showGrid: true,
+          lineColor: 'hsl(var(--primary))',
+          smoothing: true
+        };
+      case 'current-hovmoller':
+        return {
+          parameter: 'east',
+          timeRange: '6h',
+          colorScheme: 'viridis',
+          interpolation: true,
+          showColorbar: true
+        };
+      case 'current-status-table':
+        return {
+          showInstrumentInfo: true,
+          showQualityIndicators: true,
+          highlightAlerts: true,
+          refreshRate: 5
+        };
+      case 'current-speed-compass':
+        return {
+          speedScale: [0, 2],
+          showSpeedHistory: false,
+          compassSize: 'medium',
+          averagingWindow: 10,
+          showQualityRing: true
+        };
+      case 'wave-timeseries':
+        return {
+          parameter: 'hm0',
+          timeRange: '24h',
+          showGrid: true,
+          lineColor: 'hsl(var(--primary))',
+          showAlertThresholds: false
+        };
+      case 'wave-status-table':
+        return {
+          showProcessingInfo: true,
+          showQualityMetrics: true,
+          showCurrentInfo: true,
+          compactMode: false
+        };
+      case 'wave-gauge-compass':
+        return {
+          gaugeParameters: ['hm0', 'tp'],
+          compassParameter: 'dirTp',
+          gaugeSize: 'medium',
+          showAlertZones: false,
+          alertThresholds: {}
+        };
+      default:
+        return {};
+    }
+  };
+
+  const handleAddWidget = (type: ADCPWidgetType) => {
+    const defaults = ADCP_WIDGET_DEFAULTS[type];
+    const newWidget: ADCPWidgetConfig = {
+      id: `widget-${Date.now()}`,
+      type,
+      title: `New ${type}`,
+      position: { 
+        x: 0, 
+        y: 0, 
+        w: defaults.w, 
+        h: defaults.h 
+      },
+      settings: getDefaultSettings(type)
+    };
+    
+    setWidgets(prev => [...prev, newWidget]);
+  };
+
+  const handleConfigureWidget = (widget: ADCPWidgetConfig) => {
+    setConfiguringWidget(widget);
+  };
+
+  const handleSaveWidget = (updatedWidget: ADCPWidgetConfig) => {
+    setWidgets(prev => 
+      prev.map(w => w.id === updatedWidget.id ? updatedWidget : w)
+    );
+  };
+
+  const handleRemoveWidget = (widgetId: string) => {
+    setWidgets(prev => prev.filter(w => w.id !== widgetId));
+  };
+
+  const handleLayoutChange = (layout: any[]) => {
+    if (dashboardState.isEditMode) {
+      const updatedWidgets = widgets.map(widget => {
+        const layoutItem = layout.find(l => l.i === widget.id);
+        if (layoutItem) {
+          return {
+            ...widget,
+            position: {
+              x: layoutItem.x,
+              y: layoutItem.y,
+              w: layoutItem.w,
+              h: layoutItem.h
+            }
+          };
+        }
+        return widget;
+      });
+      setWidgets(updatedWidgets);
+    }
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Toolbar */}
@@ -124,6 +254,16 @@ export function ADCPDashboard({ initialState }: ADCPDashboardProps) {
             }`} />
             {dashboardState.connectionStatus === 'connected' ? 'Connected' : 'Disconnected'}
           </div>
+          {dashboardState.isEditMode && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowWidgetPalette(true)}
+            >
+              <Plus className="h-4 w-4 mr-1" />
+              Add Widget
+            </Button>
+          )}
           <Button
             variant={dashboardState.isEditMode ? "default" : "outline"}
             size="sm"
@@ -145,16 +285,52 @@ export function ADCPDashboard({ initialState }: ADCPDashboardProps) {
           rowHeight={60}
           isDraggable={dashboardState.isEditMode}
           isResizable={dashboardState.isEditMode}
+          onLayoutChange={handleLayoutChange}
           margin={[16, 16]}
           containerPadding={[0, 0]}
         >
           {widgets.map(widget => (
             <div key={widget.id} className="widget-container">
-              {renderWidget(widget)}
+              <div 
+                className={`h-full ${dashboardState.isEditMode ? 'cursor-move' : ''}`}
+                onDoubleClick={() => !dashboardState.isEditMode ? handleConfigureWidget(widget) : undefined}
+              >
+                {dashboardState.isEditMode && (
+                  <div className="absolute top-2 right-2 z-10 flex gap-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleConfigureWidget(widget);
+                      }}
+                    >
+                      <Settings className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+                {renderWidget(widget)}
+              </div>
             </div>
           ))}
         </ResponsiveGridLayout>
       </div>
+
+      {/* Widget Palette */}
+      <WidgetPalette
+        isOpen={showWidgetPalette}
+        onClose={() => setShowWidgetPalette(false)}
+        onAddWidget={handleAddWidget}
+      />
+
+      {/* Widget Configurator */}
+      <WidgetConfigurator
+        widget={configuringWidget}
+        isOpen={!!configuringWidget}
+        onClose={() => setConfiguringWidget(null)}
+        onSave={handleSaveWidget}
+        onRemove={handleRemoveWidget}
+      />
     </div>
   );
 }
