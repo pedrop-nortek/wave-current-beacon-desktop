@@ -3,7 +3,16 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Settings, Play, Pause } from 'lucide-react';
 import { ResponsiveGridLayout } from 'react-grid-layout';
-import { ADCPWidgetConfig, ADCPDashboardState, ADCP_WIDGET_DEFAULTS } from '@/types/ADCPDashboardTypes';
+import { 
+  ADCPWidgetConfig, 
+  ADCPDashboardState, 
+  ADCP_WIDGET_DEFAULTS,
+  CurrentTimeSeriesSettings,
+  CurrentHovmollerSettings,
+  CurrentStatusTableSettings,
+  CurrentSpeedCompassSettings,
+  WaveTimeSeriesSettings
+} from '@/types/ADCPDashboardTypes';
 import { CurrentTimeSeriesWidget } from './widgets/current/CurrentTimeSeriesWidget';
 import { CurrentHovmollerWidget } from './widgets/current/CurrentHovmollerWidget';
 import { CurrentStatusTableWidget } from './widgets/current/CurrentStatusTableWidget';
@@ -74,15 +83,15 @@ export function ADCPDashboard({ initialState }: ADCPDashboardProps) {
 
     switch (widget.type) {
       case 'current-timeseries':
-        return <CurrentTimeSeriesWidget {...commonProps} settings={widget.settings} />;
+        return <CurrentTimeSeriesWidget {...commonProps} settings={widget.settings as CurrentTimeSeriesSettings} />;
       case 'current-hovmoller':
-        return <CurrentHovmollerWidget {...commonProps} settings={widget.settings} />;
+        return <CurrentHovmollerWidget {...commonProps} settings={widget.settings as CurrentHovmollerSettings} />;
       case 'current-status-table':
-        return <CurrentStatusTableWidget {...commonProps} settings={widget.settings} />;
+        return <CurrentStatusTableWidget {...commonProps} settings={widget.settings as CurrentStatusTableSettings} />;
       case 'current-speed-compass':
-        return <CurrentSpeedCompassWidget {...commonProps} settings={widget.settings} />;
+        return <CurrentSpeedCompassWidget {...commonProps} settings={widget.settings as CurrentSpeedCompassSettings} />;
       case 'wave-timeseries':
-        return <WaveTimeSeriesWidget {...commonProps} settings={widget.settings} />;
+        return <WaveTimeSeriesWidget {...commonProps} settings={widget.settings as WaveTimeSeriesSettings} />;
       default:
         return (
           <Card className="h-full flex items-center justify-center">
