@@ -20,7 +20,16 @@ interface HovmollerCell {
 export function CurrentHovmollerWidget({ id, settings, isEditing = false }: CurrentHovmollerWidgetProps) {
   const { getHovmollerData } = useADCPData();
   
-  const parameterMeta = CURRENT_PARAMETER_META[settings.parameter];
+  // Safety check for parameter metadata
+  const parameterMeta = CURRENT_PARAMETER_META[settings.parameter] || {
+    label: 'Unknown Parameter',
+    unit: '',
+    description: 'Unknown parameter',
+    range: [0, 1] as [number, number],
+    colorScheme: 'sequential' as const,
+    decimalPlaces: 2
+  };
+  
   const data = getHovmollerData(settings.parameter, settings.timeRange);
 
   const { gridData, timeLabels, depthLabels, colorScale } = useMemo(() => {
