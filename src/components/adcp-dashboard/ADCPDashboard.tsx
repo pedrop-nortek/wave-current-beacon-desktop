@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Settings } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Settings, Download, Upload } from 'lucide-react';
 import { ResponsiveGridLayout } from 'react-grid-layout';
 import { 
   ADCPWidgetConfig, 
@@ -25,6 +26,7 @@ import { WaveStatusTableWidget } from './widgets/wave/WaveStatusTableWidget';
 import { WaveGaugeCompassWidget } from './widgets/wave/WaveGaugeCompassWidget';
 import { WidgetConfigurator } from './WidgetConfigurator';
 import { WidgetPalette } from './WidgetPalette';
+import { ADCP_PRESETS } from './widgets/presets/ADCPPresets';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
@@ -43,49 +45,19 @@ export function ADCPDashboard({ initialState }: ADCPDashboardProps) {
     ...initialState
   });
 
-  const [widgets, setWidgets] = useState<ADCPWidgetConfig[]>([
-    {
-      id: 'widget-1',
-      type: 'current-status-table',
-      title: 'ADCP Status',
-      position: { x: 0, y: 0, w: 4, h: 5 },
-      settings: {
-        showInstrumentInfo: true,
-        showQualityIndicators: true,
-        highlightAlerts: true,
-        refreshRate: 5
-      }
-    },
-    {
-      id: 'widget-2',
-      type: 'current-speed-compass',
-      title: 'Current Speed & Direction',
-      position: { x: 4, y: 0, w: 4, h: 4 },
-      settings: {
-        speedScale: [0, 2],
-        showSpeedHistory: false,
-        compassSize: 'medium',
-        averagingWindow: 10,
-        showQualityRing: true
-      }
-    },
-    {
-      id: 'widget-3',
-      type: 'current-timeseries',
-      title: 'Battery Voltage',
-      position: { x: 8, y: 0, w: 4, h: 4 },
-      settings: {
-        parameter: 'batteryVoltage',
-        timeRange: '6h',
-        showGrid: true,
-        lineColor: 'hsl(var(--primary))',
-        smoothing: true
-      }
-    }
-  ]);
+  const [currentLayout, setCurrentLayout] = useState<string>('operational');
+  const [widgets, setWidgets] = useState<ADCPWidgetConfig[]>([]);
 
   const [configuringWidget, setConfiguringWidget] = useState<ADCPWidgetConfig | null>(null);
   const [showWidgetPalette, setShowWidgetPalette] = useState(false);
+
+  // Load initial preset
+  useEffect(() => {
+    const preset = ADCP_PRESETS[currentLayout];
+    if (preset && widgets.length === 0) {
+      setWidgets(preset.widgets);
+    }
+  }, [currentLayout, widgets.length]);
 
   const renderWidget = (widget: ADCPWidgetConfig) => {
     const commonProps = {
@@ -242,11 +214,33 @@ export function ADCPDashboard({ initialState }: ADCPDashboardProps) {
     }
   };
 
+  const handlePresetChange = (presetId: string) => {
+    const preset = ADCP_PRESETS[presetId];
+    if (preset) {
+      setCurrentLayout(presetId);
+      setWidgets(preset.widgets);
+      setDashboardState(prev => ({ ...prev, isEditMode: false }));
+    }
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Toolbar */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <h1 className="text-2xl font-bold">ADCP Dashboard</h1>
+      <div className="flex items-center justify-between p-4 border-b bg-card">
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-bold">ADCP Dashboard</h1>
+          <Select value={currentLayout} onValueChange={handlePresetChange} disabled={dashboardState.isEditMode}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Select preset" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="operational">Operational Monitoring</SelectItem>
+              <SelectItem value="scientific">Scientific Analysis</SelectItem>
+              <SelectItem value="mobile">Mobile View</SelectItem>
+              <SelectItem value="presentation">Presentation Mode</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 text-sm">
             <div className={`w-2 h-2 rounded-full ${

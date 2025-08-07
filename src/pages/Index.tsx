@@ -15,7 +15,7 @@ import { LicensePanel } from '@/components/LicensePanel';
 import { LanguageSelector } from '@/components/LanguageSelector';
 import { ThemeSelector } from '@/components/ThemeSelector';
 import { GlobalAlerts } from '@/components/GlobalAlerts';
-import { DashboardContainer } from '@/components/dashboard/DashboardContainer';
+import { ADCPDashboard } from '@/components/adcp-dashboard/ADCPDashboard';
 import { Shield, User } from 'lucide-react';
 import '@/utils/i18n';
 
@@ -70,7 +70,7 @@ const AppContent = () => {
             </TabsList>
             
             <TabsContent value="dashboard" className="h-[calc(100vh-300px)]">
-              <DashboardContainer />
+              <ADCPDashboard />
             </TabsContent>
             
             <TabsContent value="waves">
