@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Settings, Download, Upload } from 'lucide-react';
-import { ResponsiveGridLayout } from 'react-grid-layout';
+import { Responsive, WidthProvider } from 'react-grid-layout';
 import { 
   ADCPWidgetConfig, 
   ADCPDashboardState, 
@@ -29,6 +29,8 @@ import { WidgetPalette } from './WidgetPalette';
 import { ADCP_PRESETS } from './widgets/presets/ADCPPresets';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
 
 interface ADCPDashboardProps {
   initialState?: Partial<ADCPDashboardState>;
