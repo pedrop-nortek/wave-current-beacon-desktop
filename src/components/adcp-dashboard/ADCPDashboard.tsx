@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Settings, Download, Upload } from 'lucide-react';
+import { Plus, Settings, Download, Upload, X } from 'lucide-react';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import { 
   ADCPWidgetConfig, 
@@ -288,7 +288,7 @@ export function ADCPDashboard({ initialState }: ADCPDashboardProps) {
           {widgets.map(widget => (
             <div key={widget.id} className="widget-container">
               <div 
-                className={`h-full ${dashboardState.isEditMode ? 'cursor-move' : ''}`}
+                className={`relative h-full ${dashboardState.isEditMode ? 'cursor-move' : ''}`}
                 onDoubleClick={() => !dashboardState.isEditMode ? handleConfigureWidget(widget) : undefined}
               >
                 {dashboardState.isEditMode && (
@@ -302,6 +302,16 @@ export function ADCPDashboard({ initialState }: ADCPDashboardProps) {
                       }}
                     >
                       <Settings className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveWidget(widget.id);
+                      }}
+                    >
+                      <X className="h-3 w-3" />
                     </Button>
                   </div>
                 )}
