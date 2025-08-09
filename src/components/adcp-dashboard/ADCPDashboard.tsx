@@ -284,6 +284,7 @@ export function ADCPDashboard({ initialState }: ADCPDashboardProps) {
           onLayoutChange={handleLayoutChange}
           margin={[16, 16]}
           containerPadding={[0, 0]}
+          draggableCancel=".widget-controls, .widget-controls *, button, input, select, textarea"
         >
           {widgets.map(widget => (
             <div key={widget.id} className="widget-container">
@@ -292,24 +293,32 @@ export function ADCPDashboard({ initialState }: ADCPDashboardProps) {
                 onDoubleClick={() => !dashboardState.isEditMode ? handleConfigureWidget(widget) : undefined}
               >
                 {dashboardState.isEditMode && (
-                  <div className="absolute top-2 right-2 z-10 flex gap-1">
+                  <div
+                    className="absolute top-2 right-2 z-10 flex gap-1 widget-controls"
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <Button
                       size="sm"
                       variant="outline"
+                      onMouseDown={(e) => e.stopPropagation()}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleConfigureWidget(widget);
                       }}
+                      className="h-6 w-6 p-0"
                     >
                       <Settings className="h-3 w-3" />
                     </Button>
                     <Button
                       size="sm"
                       variant="destructive"
+                      onMouseDown={(e) => e.stopPropagation()}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemoveWidget(widget.id);
                       }}
+                      className="h-6 w-6 p-0"
                     >
                       <X className="h-3 w-3" />
                     </Button>

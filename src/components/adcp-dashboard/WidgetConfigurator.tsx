@@ -529,7 +529,7 @@ export function WidgetConfigurator({ widget, isOpen, onClose, onSave, onRemove }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Configure Widget</DialogTitle>
